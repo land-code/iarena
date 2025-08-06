@@ -1,7 +1,8 @@
 import { PrismaClient } from '@/generated/prisma'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import {nextCookies} from 'better-auth/next-js'
+import { nextCookies } from 'better-auth/next-js'
+import { admin } from 'better-auth/plugins'
 
 const prisma = new PrismaClient()
 
@@ -30,5 +31,5 @@ export const auth = betterAuth({
       clientSecret: process.env.DISCORD_CLIENT_SECRET!
     }
   },
-  plugins: [nextCookies()]
+  plugins: [nextCookies(), admin()]
 })
