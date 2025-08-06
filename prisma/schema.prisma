@@ -29,6 +29,9 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  lessons       Lesson[]
+  itineraries   Itinerary[]
+
   @@unique([email])
   @@map("user")
 }
@@ -77,4 +80,93 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  MATCHING
+}
+
+model Theory {
+  id          String         @id @default(uuid())
+  title       String
+  content     String
+  lessonTheories LessonTheory[]
+
+  @@map("theorie")
+}
+
+model Exercise {
+  id            String           @id @default(uuid())
+  title         String
+  type          ExerciseType
+  lessonExercises LessonExercise[]
+
+  @@map("exercise")
+}
+
+model Lesson {
+  id          String         @id @default(uuid()) // Added @id @default(uuid())
+  title       String
+  description String
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id])
+  theories    LessonTheory[] // Relation to the linking table for theories
+  exercises   LessonExercise[] // Relation to the linking table for exercises
+  itineraryLessons ItineraryLesson[] // Relation to the linking table for itineraries
+
+  @@map("lesson")
+}
+
+// Linking table for Lesson and Theory (many-to-many)
+model LessonTheory {
+  id       String @id @default(uuid()) // Added @id @default(uuid())
+  lessonId String
+  theoryId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+  theory   Theory @relation(fields: [theoryId], references: [id])
+  position Int    // To maintain the order of theories within a lesson
+
+  @@unique([lessonId, theoryId])
+  @@map("lesson_theorie")
+}
+
+// Linking table for Lesson and Exercise (many-to-many)
+model LessonExercise {
+  id         String   @id @default(uuid()) // Added @id @default(uuid())
+  lessonId   String
+  exerciseId String
+  lesson     Lesson   @relation(fields: [lessonId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  position   Int      // To maintain the order of exercises within a lesson
+
+  @@unique([lessonId, exerciseId])
+  @@map("lesson_exercise")
+}
+
+// Represents an itinerary composed of multiple lessons
+model Itinerary {
+  id          String            @id @default(uuid()) // Added @id @default(uuid())
+  title       String
+  description String
+  ownerId     String
+  owner       User              @relation(fields: [ownerId], references: [id])
+  lessons     ItineraryLesson[] // Relation to the linking table for lessons
+
+  @@map("itinerarie")
+}
+
+// Linking table for Itinerary and Lesson (many-to-many)
+model ItineraryLesson {
+  id          String  @id @default(uuid()) // Added @id @default(uuid())
+  itineraryId String
+  lessonId    String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id])
+  lesson      Lesson    @relation(fields: [lessonId], references: [id])
+  position    Int     // To maintain the order of lessons within an itinerary
+
+  @@unique([itineraryId, lessonId])
+  @@map("itinerary_lesson")
 }
