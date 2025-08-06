@@ -1,7 +1,7 @@
 export const UI = {
   startNow: 'Empezar ahora',
   learnMore: 'Saber más',
-  comingSoon: 'Próximamente',
+  comingSoon: 'Próximamente...',
   error404: 'Página no encontrada',
   save: 'Guardar',
   start: 'Empezar ahora',

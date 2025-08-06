@@ -1,3 +1,9 @@
+import Hero from '@/components/landing/hero'
+
 export default function Home() {
-  return 'Hello'
+  return (
+    <>
+      <Hero />
+    </>
+  )
 }
