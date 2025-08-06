@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "migrate": "dotenv -e .env -- pnpx prisma migrate dev",
+    "migrate:prod": "dotenv -e .env.production.local -- pnpx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
