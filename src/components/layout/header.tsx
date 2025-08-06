@@ -4,6 +4,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../u
 import Link from 'next/link'
 import IArenaIcon from '../icons/iarena'
 import { SidebarNavLink, TopBarNavLink } from './nav-link'
+import { APP_NAME } from '@/consts/app'
+import { UI } from '@/consts/ui'
 
 type Link = {
   label: string
@@ -16,11 +18,11 @@ const LINKS: Link[] = [
     path: '/'
   },
   {
-    label: 'Iniciar sesión',
+    label: UI.signIn,
     path: '/sign-in'
   },
   {
-    label: 'Registrarse',
+    label: UI.signUp,
     path: '/sign-up'
   }
 ]
@@ -40,7 +42,7 @@ export default function Header() {
             <SheetTitle asChild>
               <Link href='/' className='mr-6 sm:hidden' prefetch={false}>
                 <IArenaIcon />
-                <span className='sr-only'>IArena</span>
+                <span className='sr-only'>{APP_NAME}</span>
               </Link>
             </SheetTitle>
           </SheetHeader>
@@ -53,7 +55,7 @@ export default function Header() {
       </Sheet>
       <Link href='/' className='mr-6 sm:flex' prefetch={false}>
         <IArenaIcon />
-        <span className='sr-only'>IArena</span>
+        <span className='sr-only'>{APP_NAME}</span>
       </Link>
       <nav className='ml-auto hidden gap-6 sm:flex'>
         {LINKS.map(({ path, label }) => (

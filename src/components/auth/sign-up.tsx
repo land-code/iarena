@@ -10,6 +10,7 @@ import { Loader2, X } from 'lucide-react'
 import { signUp } from '@/lib/auth-client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import {UI} from '@/consts/ui'
 
 export default function SignUp() {
   const [firstName, setFirstName] = useState('')
@@ -37,7 +38,7 @@ export default function SignUp() {
   return (
     <Card className='z-50 w-full max-w-md'>
       <CardHeader>
-        <CardTitle className='text-lg md:text-xl'>Registrarse</CardTitle>
+        <CardTitle className='text-lg md:text-xl'>{UI.signUp}</CardTitle>
         <CardDescription className='text-xs md:text-sm'>
           Introduce tu información para crear una cuenta
         </CardDescription>

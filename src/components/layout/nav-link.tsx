@@ -12,7 +12,6 @@ export function SidebarNavLink({ path, label }: { path: string; label: string })
       <Link
         href={path}
         className={`flex w-full items-center justify-start py-2 text-lg font-semibold ${isActive ? 'text-secondary-foreground' : ''}`}
-        prefetch={false}
       >
         {label}
       </Link>
@@ -25,11 +24,7 @@ export function TopBarNavLink({ path, label }: { path: string; label: string }) 
   const isActive = currentPath === path
   return (
     <Button asChild variant='link'>
-      <Link
-        href={path}
-        className={`${isActive ? 'text-secondary-foreground' : ''}`}
-        prefetch={false}
-      >
+      <Link href={path} className={`${isActive ? 'text-secondary-foreground' : ''}`}>
         {label}
       </Link>
     </Button>

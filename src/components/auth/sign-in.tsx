@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react'
 import { signIn } from '@/lib/auth-client'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { UI } from '@/consts/ui'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -20,7 +21,7 @@ export default function SignIn() {
   return (
     <Card className='w-full max-w-md'>
       <CardHeader>
-        <CardTitle className='text-lg md:text-xl'>Iniciar sesión</CardTitle>
+        <CardTitle className='text-lg md:text-xl'>{UI.signIn}</CardTitle>
         <CardDescription className='text-xs md:text-sm'>
           Introduce la información para iniciar sesión en tu cuenta
         </CardDescription>
@@ -90,7 +91,7 @@ export default function SignIn() {
               )
             }}
           >
-            {loading ? <Loader2 size={16} className='animate-spin' /> : <p> Iniciar sesión </p>}
+            {loading ? <Loader2 size={16} className='animate-spin' /> : <p>{UI.signIn}</p>}
           </Button>
 
           <div className={cn('flex w-full items-center gap-2', 'flex-col justify-between')}>
