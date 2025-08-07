@@ -67,29 +67,33 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
         </div>
         <div className='flex flex-1 flex-col items-start md:flex-row md:items-center md:justify-between'>
           <span className='text-2xl'>{lesson.title}</span>
-          <DropdownMenu>
-            <Button variant='ghost' asChild>
-              <DropdownMenuTrigger>Ir a...</DropdownMenuTrigger>
-            </Button>
-            <DropdownMenuContent>
-              {content.map(content => (
-                <DropdownMenuItem asChild key={content.data.id}>
-                  <Link
-                    href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
-                    prefetch={false}
-                  >
-                    {lessonPosition}.{content.position} {content.data.title}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {content.length > 0 && (
+            <DropdownMenu>
+              <Button variant='ghost' asChild>
+                <DropdownMenuTrigger>Ir a...</DropdownMenuTrigger>
+              </Button>
+              <DropdownMenuContent>
+                {content.map(content => (
+                  <DropdownMenuItem asChild key={content.data.id}>
+                    <Link
+                      href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
+                      prefetch={false}
+                    >
+                      {lessonPosition}.{content.position} {content.data.title}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </header>
-      <main className='flex-1'>{children}</main>
+      <main className='flex w-full max-w-3xl flex-1 flex-col items-center gap-4 p-4'>
+        {children}
+      </main>
       <footer className='bg-accent flex w-full items-center justify-between p-4'>
         <Button variant='secondary'>{'<-'} Anterior</Button>
-        <Button>{'->'} Siguiente</Button>
+        <Button>Siguiente {'->'}</Button>
       </footer>
     </>
   )

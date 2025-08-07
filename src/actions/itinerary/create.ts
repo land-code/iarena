@@ -13,7 +13,7 @@ import { revalidatePath } from 'next/cache'
 
 const ItinerarySchema = z.object({
   text: z
-    .string({ error: 'Eso obligatorio describir el itinerario' })
+    .string({ error: 'Es obligatorio describir el itinerario' })
     .min(10, 'La descripción debe de tener al menos 10 caracteres')
 })
 

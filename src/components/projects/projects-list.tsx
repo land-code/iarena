@@ -28,7 +28,7 @@ export default async function ProjectsList() {
   })
 
   return (
-    <ul>
+    <ul className='flex flex-col gap-4'>
       {itineraries.map(({ id, title, description, course, subject, difficulty, _count }) => (
         <ItineraryCard
           key={id}

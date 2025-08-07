@@ -54,7 +54,7 @@ export default function RootLayout({
         className={`flex min-h-screen flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DashboardHeader />
-        <main className='flex w-full flex-1 flex-col items-center pt-4'>{children}</main>
+        <main className='flex w-full flex-1 flex-col items-center'>{children}</main>
         <DashboardFooter />
         <Toaster />
       </body>
