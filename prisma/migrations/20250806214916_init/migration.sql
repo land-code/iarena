@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "public"."ExerciseType" AS ENUM ('MULTIPLE_CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER', 'MATCHING');
 
+-- CreateEnum
+CREATE TYPE "public"."Difficulty" AS ENUM ('EASY', 'MEDIUM', 'ADVANCED');
+
 -- CreateTable
 CREATE TABLE "public"."user" (
     "id" TEXT NOT NULL,
@@ -118,6 +121,9 @@ CREATE TABLE "public"."itinerarie" (
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "ownerId" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "difficulty" "public"."Difficulty" NOT NULL,
+    "course" TEXT NOT NULL,
 
     CONSTRAINT "itinerarie_pkey" PRIMARY KEY ("id")
 );

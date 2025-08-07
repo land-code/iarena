@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Starting seed...')
+  console.log('🌱 Starting full seed...')
 
   // Crear usuario
   const user = await prisma.user.create({
@@ -36,6 +36,21 @@ async function main() {
     }
   })
 
+  // Crear ejercicios
+  const exercise1 = await prisma.exercise.create({
+    data: {
+      title: '¿Qué es la masa?',
+      type: 'SHORT_ANSWER'
+    }
+  })
+
+  const exercise2 = await prisma.exercise.create({
+    data: {
+      title: 'Elige la opción correcta sobre la inercia.',
+      type: 'MULTIPLE_CHOICE'
+    }
+  })
+
   // Crear lección
   const lesson = await prisma.lesson.create({
     data: {
@@ -45,7 +60,7 @@ async function main() {
     }
   })
 
-  // Vincular teorías a la lección con orden
+  // Vincular teorías a la lección
   await prisma.lessonTheory.createMany({
     data: [
       {
@@ -56,9 +71,46 @@ async function main() {
       {
         lessonId: lesson.id,
         theoryId: theory2.id,
-        position: 2
+        position: 4
       }
     ]
+  })
+
+  // Vincular ejercicios a la lección
+  await prisma.lessonExercise.createMany({
+    data: [
+      {
+        lessonId: lesson.id,
+        exerciseId: exercise1.id,
+        position: 2
+      },
+      {
+        lessonId: lesson.id,
+        exerciseId: exercise2.id,
+        position: 3
+      }
+    ]
+  })
+
+  // Crear itinerario
+  const itinerary = await prisma.itinerary.create({
+    data: {
+      title: 'Itinerario de Física 1',
+      description: 'Primera parte del curso de física',
+      ownerId: user.id,
+      difficulty: 'EASY',
+      course: '2 Bach',
+      subject: 'Lengua Castellana'
+    }
+  })
+
+  // Vincular lección al itinerario
+  await prisma.itineraryLesson.create({
+    data: {
+      lessonId: lesson.id,
+      itineraryId: itinerary.id,
+      position: 1
+    }
   })
 
   console.log('✅ Seed completed')

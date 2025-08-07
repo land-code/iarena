@@ -12,6 +12,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
@@ -89,6 +90,12 @@ enum ExerciseType {
   MATCHING
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  ADVANCED
+}
+
 model Theory {
   id          String         @id @default(uuid())
   title       String
@@ -154,6 +161,10 @@ model Itinerary {
   ownerId     String
   owner       User              @relation(fields: [ownerId], references: [id])
   lessons     ItineraryLesson[] // Relation to the linking table for lessons
+
+  subject     String
+  difficulty  Difficulty
+  course      String
 
   @@map("itinerarie")
 }

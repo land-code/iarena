@@ -8,5 +8,6 @@ export const UI = {
   loading: 'Cargando...',
   error: 'Ha ocurrido un error',
   signIn: 'Iniciar sesión',
-  signUp: 'Registrarse'
+  signUp: 'Registrarse',
+  signOut: 'Cerrar sesión'
 }
