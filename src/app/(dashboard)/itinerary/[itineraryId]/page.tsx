@@ -39,7 +39,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
         <h1 className='text-semibold text-2xl'>{itinerary.title}</h1>
         <p className='text-muted-foreground font-light'>{itinerary.description}</p>
       </div>
-      <div className='w-full'>
+      <div className='flex w-full flex-col gap-24'>
         {itinerary.lessons.map(({ lesson: { id, title } }, index) => (
           <ItineraryLesson
             completed={false}

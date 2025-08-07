@@ -78,7 +78,7 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
                     href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
                     prefetch={false}
                   >
-                    {content.data.title}
+                    {lessonPosition}.{content.position} {content.data.title}
                   </Link>
                 </DropdownMenuItem>
               ))}
