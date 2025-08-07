@@ -34,18 +34,24 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
   if (!itinerary) return notFound()
 
   return (
-    <div>
-      {itinerary.lessons.map(({ lesson: { id, title } }, index) => (
-        <ItineraryLesson
-          completed={false}
-          locked={false}
-          current={false}
-          index={index}
-          title={title}
-          href={`/lesson/${id}`}
-          key={id}
-        />
-      ))}
+    <div className='flex w-full flex-col items-center gap-4 px-4'>
+      <div>
+        <h1 className='text-semibold text-2xl'>{itinerary.title}</h1>
+        <p className='text-muted-foreground font-light'>{itinerary.description}</p>
+      </div>
+      <div className='w-full'>
+        {itinerary.lessons.map(({ lesson: { id, title } }, index) => (
+          <ItineraryLesson
+            completed={false}
+            locked={false}
+            current={false}
+            index={index}
+            title={title}
+            href={`/itinerary/${itineraryId}/${id}`}
+            key={id}
+          />
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 type LessonPageProps = {
-  params: Promise<{ lessonId: string }>
+  params: Promise<{ lessonId: string; itineraryId: string }>
   children: React.ReactNode
 }
 
@@ -19,7 +20,7 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/login')
 
-  const { lessonId } = await params
+  const { lessonId, itineraryId } = await params
   const lesson = await prisma.lesson.findFirst({
     where: { id: lessonId },
     include: {
@@ -32,16 +33,18 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
       exercises: {
         orderBy: { position: 'asc' },
         include: { exercise: true }
-      },
-      itineraryLessons: {
-        select: {
-          position: true
-        }
       }
     }
   })
 
   if (!lesson) notFound()
+
+  const itinerary = await prisma.itinerary.findFirst({
+    where: { id: itineraryId },
+    include: { lessons: { select: { lessonId: true, position: true } } }
+  })
+
+  const lessonPosition = itinerary?.lessons.find(l => l.lessonId === lessonId)?.position
 
   const content = [
     ...lesson.theories.map(t => ({
@@ -57,20 +60,22 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   ].toSorted((a, b) => a.position - b.position)
 
   return (
-    <div className='flex w-full flex-col'>
+    <>
       <header className='bg-accent flex w-full items-center gap-4 p-4'>
         <div className='bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full text-3xl'>
-          {lesson.itineraryLessons[0].position}
+          {lessonPosition}
         </div>
-        <div className='flex flex-1 flex-col md:flex-row md:justify-between'>
-          <h1 className='text-2xl'>{lesson.title}</h1>
+        <div className='flex flex-1 flex-col items-start md:flex-row md:items-center md:justify-between'>
+          <span className='text-2xl'>{lesson.title}</span>
           <DropdownMenu>
-            <DropdownMenuTrigger className='w-max'>Ir a...</DropdownMenuTrigger>
+            <Button variant='ghost' asChild>
+              <DropdownMenuTrigger>Ir a...</DropdownMenuTrigger>
+            </Button>
             <DropdownMenuContent>
               {content.map(content => (
                 <DropdownMenuItem asChild key={content.data.id}>
                   <Link
-                    href={`/lesson/${lessonId}/${content.type}/${content.data.id}`}
+                    href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
                     prefetch={false}
                   >
                     {content.data.title}
@@ -81,7 +86,11 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
           </DropdownMenu>
         </div>
       </header>
-      <main>{children}</main>
-    </div>
+      <main className='flex-1'>{children}</main>
+      <footer className='bg-accent flex w-full items-center justify-between p-4'>
+        <Button variant='secondary'>{'<-'} Anterior</Button>
+        <Button>{'->'} Siguiente</Button>
+      </footer>
+    </>
   )
 }

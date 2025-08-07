@@ -9,5 +9,7 @@ export const UI = {
   error: 'Ha ocurrido un error',
   signIn: 'Iniciar sesión',
   signUp: 'Registrarse',
-  signOut: 'Cerrar sesión'
+  signOut: 'Cerrar sesión',
+  newItinerarie: 'Nuevo itinerario',
+  createItinerarie: 'Crear itinerario'
 }

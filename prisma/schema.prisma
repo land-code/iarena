@@ -115,11 +115,13 @@ model Exercise {
 }
 
 model Lesson {
-  id          String         @id @default(uuid()) // Added @id @default(uuid())
+  id          String          @id @default(uuid()) // Added @id @default(uuid())
   title       String
   description String
+  summary     String          @default("")
   ownerId     String
-  owner       User           @relation(fields: [ownerId], references: [id])
+  owner       User            @relation(fields: [ownerId], references: [id])
+  generated   Boolean         @default(false)
   theories    LessonTheory[] // Relation to the linking table for theories
   exercises   LessonExercise[] // Relation to the linking table for exercises
   itineraryLessons ItineraryLesson[] // Relation to the linking table for itineraries
