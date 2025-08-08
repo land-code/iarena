@@ -146,10 +146,9 @@ Vas a generar una lección de 6-7 páginas, que pueden ser de tipo "theory" o "e
 
 Cada página debe tener estos campos comunes:
 - "type": "theory" o "exercise"
-- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato
 
 Si "type" es "theory", añade:
-- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato
+- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato. Puedes usar Markdown. Puedes también poner diagramas con un bloque de codigo de tipo mermaid
 
 Si "type" es "exercise", añade:
 - "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
