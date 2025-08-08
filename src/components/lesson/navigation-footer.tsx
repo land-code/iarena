@@ -5,16 +5,26 @@ import { Button } from '../ui/button'
 import Link from 'next/link'
 
 export default function NavigationFooter() {
-  const { nextUrl, backUrl } = useNavFooter()
+  const { nextLessonUrl, backLessonUrl, nextUrl, backUrl } = useNavFooter()
+
+  const nextButtonUrl = nextUrl ?? nextLessonUrl
+  const backButtonUrl = backUrl ?? backLessonUrl
+
   return (
     <footer className='bg-accent flex w-full items-center justify-between p-4'>
       <Button variant='secondary' asChild>
-        <Link href={backUrl}>{'<- Anterior'}</Link>
+        {backButtonUrl && (
+          <Link prefetch={true} href={backButtonUrl}>
+            {backUrl ? '<- Anterior' : '<- Anterior lección'}
+          </Link>
+        )}
       </Button>
       <Button asChild>
-        <Link prefetch={true} href={nextUrl}>
-          {'Siguiente ->'}
-        </Link>
+        {nextButtonUrl && (
+          <Link prefetch={true} href={nextButtonUrl}>
+            {nextUrl ? 'Siguiente ->' : 'Siguiente lección ->'}
+          </Link>
+        )}
       </Button>
     </footer>
   )

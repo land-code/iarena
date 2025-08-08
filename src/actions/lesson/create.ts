@@ -75,14 +75,15 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
       const positionedTheories = theories
         .map((theorie, i) => ({
           ...theorie,
-          position: order.findIndex(({ source, index }) => source === 'theory' && index === i)
+          position: order.findIndex(({ source, index }) => source === 'theory' && index === i) + 1
         }))
         .filter(theorie => theorie.position !== -1)
 
       const positionedExercises = exercises
         .map((exercise, i) => ({
           ...exercise,
-          position: order.findIndex(({ source, index }) => source === 'exercises' && index === i)
+          position:
+            order.findIndex(({ source, index }) => source === 'exercises' && index === i) + 1
         }))
         .filter(exercise => exercise.position !== -1)
 

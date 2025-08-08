@@ -14,8 +14,11 @@ type NavFooterContextType = {
   setPosition: (index: number) => void
   goNext: () => void
   goBack: () => void
-  nextUrl: string
-  backUrl: string
+  nextUrl: string | null
+  backUrl: string | null
+
+  nextLessonUrl: string | null
+  backLessonUrl: string | null
 }
 
 const NavFooterContext = createContext<NavFooterContextType | undefined>(undefined)
@@ -28,10 +31,17 @@ type LessonContent = {
 
 type NavFooterProviderProps = {
   lessonContents: LessonContent[]
+  nextLessonId?: string
+  previousLessonId?: string
   children: ReactNode
 }
 
-export function NavFooterProvider({ lessonContents, children }: NavFooterProviderProps) {
+export function NavFooterProvider({
+  lessonContents,
+  previousLessonId,
+  nextLessonId,
+  children
+}: NavFooterProviderProps) {
   const [state, setState] = useState<State>({ status: 'idle' })
 
   const router = useRouter()
@@ -45,8 +55,11 @@ export function NavFooterProvider({ lessonContents, children }: NavFooterProvide
   const position = lessonContents.find(c => c.id === theoryId || c.id === exerciseId)?.position ?? 0
 
   const getUrl = (position: number) => {
+    if (position === 0) {
+      return `/itinerary/${itineraryId}/${lessonId}` // Return to lesson home
+    }
     const content = lessonContents.find(c => c.position === position)
-    if (!content) return '#'
+    if (!content) return null
     const { id, type } = content
     return `/itinerary/${itineraryId}/${lessonId}/${type}/${id}`
   }
@@ -55,7 +68,10 @@ export function NavFooterProvider({ lessonContents, children }: NavFooterProvide
   const backUrl = getUrl(position - 1)
 
   const setPosition = (position: number) => {
-    router.push(getUrl(position))
+    const url = getUrl(position)
+    if (url) {
+      router.push(url)
+    }
   }
 
   const goNext = () => {
@@ -66,9 +82,25 @@ export function NavFooterProvider({ lessonContents, children }: NavFooterProvide
     setPosition(position - 1)
   }
 
+  const backLessonUrl = previousLessonId
+    ? `/itinerary/${itineraryId}/${previousLessonId}/last`
+    : null
+  const nextLessonUrl = nextLessonId ? `/itinerary/${itineraryId}/${nextLessonId}` : null
+
   return (
     <NavFooterContext.Provider
-      value={{ state, setState, position, setPosition, goNext, goBack, backUrl, nextUrl }}
+      value={{
+        backLessonUrl,
+        nextLessonUrl,
+        state,
+        setState,
+        position,
+        setPosition,
+        goNext,
+        goBack,
+        backUrl,
+        nextUrl
+      }}
     >
       {children}
     </NavFooterContext.Provider>

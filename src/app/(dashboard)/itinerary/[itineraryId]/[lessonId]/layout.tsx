@@ -1,3 +1,4 @@
+import NavigationFooter from '@/components/lesson/navigation-footer'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,6 +23,12 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   if (!session) redirect('/login')
 
   const { lessonId, itineraryId } = await params
+
+  const itinerary = await prisma.itinerary.findFirst({
+    where: { id: itineraryId },
+    include: { lessons: { select: { lessonId: true, position: true } } }
+  })
+
   const lesson = await prisma.lesson.findFirst({
     where: { id: lessonId },
     include: {
@@ -39,13 +46,10 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   })
 
   if (!lesson) notFound()
+  const lessonPosition = itinerary?.lessons.find(l => l.lessonId === lessonId)?.position ?? -1
 
-  const itinerary = await prisma.itinerary.findFirst({
-    where: { id: itineraryId },
-    include: { lessons: { select: { lessonId: true, position: true } } }
-  })
-
-  const lessonPosition = itinerary?.lessons.find(l => l.lessonId === lessonId)?.position
+  const nextLessonId = itinerary?.lessons.find(l => l.position === lessonPosition + 1)?.lessonId
+  const previousLessonId = itinerary?.lessons.find(l => l.position === lessonPosition - 1)?.lessonId
 
   const content = [
     ...lesson.theories.map(t => ({
@@ -65,6 +69,8 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   return (
     <NavFooterProvider
       lessonContents={content.map(({ id, type, position }) => ({ id, type, position }))}
+      nextLessonId={nextLessonId}
+      previousLessonId={previousLessonId}
     >
       <header className='bg-accent flex w-full items-center gap-4 p-4'>
         <div className='bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full text-3xl'>
@@ -93,7 +99,10 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
           )}
         </div>
       </header>
-      {children}
+      <main className='flex w-full max-w-3xl flex-1 flex-col items-center gap-4 p-4'>
+        {children}
+      </main>
+      <NavigationFooter />
     </NavFooterProvider>
   )
 }

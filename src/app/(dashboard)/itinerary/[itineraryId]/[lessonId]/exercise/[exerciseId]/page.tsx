@@ -13,12 +13,8 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
   if (!exercise) notFound()
   return (
     <>
-      {' '}
-      <main className='flex w-full max-w-3xl flex-1 flex-col items-center gap-4 p-4'>
-        <h1 className='text-3xl'>{exercise.title}</h1>
-        <p>{exercise.type}</p>
-      </main>
-      <NavigationFooter />
+      <h1 className='text-3xl'>{exercise.title}</h1>
+      <p>{exercise.type}</p>
     </>
   )
 }
