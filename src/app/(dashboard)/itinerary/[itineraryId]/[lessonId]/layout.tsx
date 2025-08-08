@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { NavFooterProvider } from '@/contexts/nav-footer'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { headers } from 'next/headers'
@@ -48,19 +49,23 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
 
   const content = [
     ...lesson.theories.map(t => ({
-      type: 'theory',
+      id: t.theory.id,
+      type: 'theory' as const,
       position: t.position,
       data: t.theory
     })),
     ...lesson.exercises.map(e => ({
-      type: 'exercise',
+      id: e.exercise.id,
+      type: 'exercise' as const,
       position: e.position,
       data: e.exercise
     }))
   ].toSorted((a, b) => a.position - b.position)
 
   return (
-    <>
+    <NavFooterProvider
+      lessonContents={content.map(({ id, type, position }) => ({ id, type, position }))}
+    >
       <header className='bg-accent flex w-full items-center gap-4 p-4'>
         <div className='bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full text-3xl'>
           {lessonPosition}
@@ -88,13 +93,7 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
           )}
         </div>
       </header>
-      <main className='flex w-full max-w-3xl flex-1 flex-col items-center gap-4 p-4'>
-        {children}
-      </main>
-      <footer className='bg-accent flex w-full items-center justify-between p-4'>
-        <Button variant='secondary'>{'<-'} Anterior</Button>
-        <Button>Siguiente {'->'}</Button>
-      </footer>
-    </>
+      {children}
+    </NavFooterProvider>
   )
 }
