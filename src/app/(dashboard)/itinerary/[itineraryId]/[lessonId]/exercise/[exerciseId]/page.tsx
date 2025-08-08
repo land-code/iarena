@@ -1,4 +1,5 @@
-import NavigationFooter from '@/components/lesson/navigation-footer'
+import exercises from '@/components/exercises'
+import MarkdownRenderer from '@/components/markdown/markdown-renderer'
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 
@@ -11,10 +12,14 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
 
   const exercise = await prisma.exercise.findFirst({ where: { id: exerciseId } })
   if (!exercise) notFound()
+
+  const ExerciseComponent = exercises[exercise.type]
   return (
     <>
-      <h1 className='text-3xl'>{exercise.title}</h1>
-      <p>{exercise.type}</p>
+      <h1 className='[&>*]:text-xl'>
+        <MarkdownRenderer content={exercise.title} inline />
+      </h1>
+      <ExerciseComponent />
     </>
   )
 }
