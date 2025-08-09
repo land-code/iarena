@@ -4,13 +4,18 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 
 export default async function LogoutPage() {
-  await auth.api.signOut({ headers: await headers() })
+  const { success } = await auth.api.signOut({ headers: await headers() })
   return (
     <div>
-      Se ha cerrado la sesión. Puedes volver a iniciar aquí:
-      <Button asChild>
-        <Link href='/sign-in'>Iniciar sesión</Link>
-      </Button>
+      {success && (
+        <>
+          <p>Se ha cerrado la sesión. Puedes volver a iniciar aquí:</p>
+          <Button asChild>
+            <Link href='/sign-in'>Iniciar sesión</Link>
+          </Button>
+        </>
+      )}
+      {!success && 'No se ha podido cerrar la sesión. Recarga para volver a intentarlo'}
     </div>
   )
 }

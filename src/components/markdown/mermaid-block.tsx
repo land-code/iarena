@@ -1,26 +1,30 @@
 'use client'
 
 import mermaid from 'mermaid'
-import { useEffect, useRef, useId } from 'react'
+import { useEffect, useId, useRef } from 'react'
 
 export default function MermaidBlock({ code }: { code: string }) {
-  const ref = useRef<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const id = useId()
 
   useEffect(() => {
-    if (ref.current) {
-      mermaid.initialize({ startOnLoad: false })
+    mermaid.initialize({ startOnLoad: false })
 
-      mermaid
-        .render(`mermaid-${id}`, code)
-        .then(({ svg }) => {
-          if (ref.current) {
-            ref.current.innerHTML = svg
-          }
-        })
-        .catch(err => console.error('Error rendering mermaid diagram: ', err))
-    }
+    mermaid
+      .render(id, code)
+      .then(({ svg }) => {
+        if (ref.current) {
+          ref.current.innerHTML = svg
+        }
+      })
+      .catch(err => console.error('Error rendering mermaid diagram: ', err))
   }, [code, id])
 
-  return <div className='mermaid-block' ref={ref} />
+  return (
+    <div
+      className='mermaid-block'
+      ref={ref}
+      style={{ minHeight: '150px', width: '100%', overflow: 'auto' }}
+    />
+  )
 }

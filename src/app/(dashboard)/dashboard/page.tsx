@@ -15,7 +15,7 @@ import { PlusIcon } from 'lucide-react'
 export default function DashboardPage() {
   return (
     <div className='flex w-full max-w-4xl flex-col gap-8 px-4'>
-      <div className='flex justify-between'>
+      <div className='flex flex-col items-start justify-between gap-2 sm:flex-row'>
         <div className='flex flex-col gap-2'>
           <h1 className='text-3xl font-bold'>Itinerarios IArena</h1>
           <p className='text-muted-foreground'>

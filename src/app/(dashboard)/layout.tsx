@@ -6,6 +6,9 @@ import DashboardHeader from '@/components/layout/dashboard-header'
 
 import { APP_NAME } from '@/consts/app'
 import { META, SITE_URL } from '@/consts/meta'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,11 +45,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL)
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = auth.api.getSession({ headers: await headers() })
+  if (!session) redirect('/login')
   return (
     <html lang='es'>
       <body
