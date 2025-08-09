@@ -18,7 +18,6 @@ export default function MarkdownRenderer({
   return (
     <div className='prose dark:prose-invert [&_pre:has(>.mermaid-block)]:bg-transparent'>
       <ReactMarkdown
-        children={content}
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeRaw]}
         components={{
@@ -34,7 +33,9 @@ export default function MarkdownRenderer({
             )
           }
         }}
-      />
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   )
 }

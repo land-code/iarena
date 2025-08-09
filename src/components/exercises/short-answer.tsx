@@ -29,7 +29,7 @@ export default function ShortAnswer({ exerciseId }: ShortAnswerProps) {
         }
       }
     }
-  }, [checkExerciseFunctionRef])
+  }, [exerciseId, checkExerciseFunctionRef, setState])
 
   return <Input ref={inputRef} placeholder='Tu respuesta...' />
 }

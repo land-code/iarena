@@ -111,6 +111,7 @@ model Exercise {
   type            ExerciseType
   answer          String            @default("")
   failedFeedback  String            @default("")
+  multiple_choice_options String[]  @default([])
   lessonExercises LessonExercise[]
 
   @@map("exercise")

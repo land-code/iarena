@@ -19,7 +19,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
       <h1 className='[&>*]:text-xl'>
         <MarkdownRenderer content={exercise.title} inline />
       </h1>
-      <ExerciseComponent exerciseId={exercise.id} />
+      <ExerciseComponent exerciseId={exercise.id} options={exercise.multiple_choice_options} />
     </>
   )
 }

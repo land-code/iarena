@@ -53,8 +53,6 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
     }
   }
 
-  console.log(itinerary)
-
   let result = null
 
   try {
@@ -94,9 +92,16 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
       )
 
       const exercisesCreated = await Promise.all(
-        positionedExercises.map(({ title, exercise_type, answer, failed_feedback }) =>
+        positionedExercises.map(exercise =>
           tx.exercise.create({
-            data: { title, type: exercise_type, answer, failedFeedback: failed_feedback }
+            data: {
+              title: exercise.title,
+              type: exercise.exercise_type,
+              answer: exercise.answer,
+              failedFeedback: exercise.failed_feedback,
+              multiple_choice_options:
+                exercise.exercise_type === 'MULTIPLE_CHOICE' ? exercise.multiple_choice_options : []
+            }
           })
         )
       )
