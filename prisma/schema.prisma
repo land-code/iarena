@@ -106,9 +106,11 @@ model Theory {
 }
 
 model Exercise {
-  id            String           @id @default(uuid())
-  title         String
-  type          ExerciseType
+  id              String            @id @default(uuid())
+  title           String
+  type            ExerciseType
+  answer          String            @default("")
+  failedFeedback  String            @default("")
   lessonExercises LessonExercise[]
 
   @@map("exercise")

@@ -94,8 +94,10 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
       )
 
       const exercisesCreated = await Promise.all(
-        positionedExercises.map(({ title, exercise_type }) =>
-          tx.exercise.create({ data: { title, type: exercise_type } })
+        positionedExercises.map(({ title, exercise_type, answer, failed_feedback }) =>
+          tx.exercise.create({
+            data: { title, type: exercise_type, answer, failedFeedback: failed_feedback }
+          })
         )
       )
 

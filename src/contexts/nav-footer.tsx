@@ -1,6 +1,15 @@
 'use client'
-import { useParams, useRouter } from 'next/navigation'
-import { createContext, useState, ReactNode, Dispatch, SetStateAction, useContext } from 'react'
+import { useParams } from 'next/navigation'
+import {
+  createContext,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useRef,
+  useEffect
+} from 'react'
 
 type State =
   | { status: 'idle' }
@@ -11,14 +20,15 @@ type NavFooterContextType = {
   state: State
   setState: Dispatch<SetStateAction<State>>
   position: number
-  setPosition: (index: number) => void
-  goNext: () => void
-  goBack: () => void
+  type?: 'theory' | 'exercise'
   nextUrl: string | null
   backUrl: string | null
 
   nextLessonUrl: string | null
   backLessonUrl: string | null
+
+  checkExerciseFunctionRef: React.RefObject<(() => void) | null>
+  checkExercise: () => void
 }
 
 const NavFooterContext = createContext<NavFooterContextType | undefined>(undefined)
@@ -44,7 +54,6 @@ export function NavFooterProvider({
 }: NavFooterProviderProps) {
   const [state, setState] = useState<State>({ status: 'idle' })
 
-  const router = useRouter()
   const { itineraryId, lessonId, theoryId, exerciseId } = useParams<{
     itineraryId: string
     lessonId: string
@@ -67,25 +76,22 @@ export function NavFooterProvider({
   const nextUrl = getUrl(position + 1)
   const backUrl = getUrl(position - 1)
 
-  const setPosition = (position: number) => {
-    const url = getUrl(position)
-    if (url) {
-      router.push(url)
-    }
-  }
-
-  const goNext = () => {
-    setPosition(position + 1)
-  }
-
-  const goBack = () => {
-    setPosition(position - 1)
-  }
-
   const backLessonUrl = previousLessonId
     ? `/itinerary/${itineraryId}/${previousLessonId}/last`
     : null
   const nextLessonUrl = nextLessonId ? `/itinerary/${itineraryId}/${nextLessonId}` : null
+
+  const checkExerciseFunctionRef = useRef<(() => void) | null>(null)
+
+  const checkExercise = () => {
+    if (checkExerciseFunctionRef.current) {
+      checkExerciseFunctionRef.current()
+    }
+  }
+
+  useEffect(() => {
+    setState({ status: 'idle' })
+  }, [exerciseId])
 
   return (
     <NavFooterContext.Provider
@@ -95,11 +101,11 @@ export function NavFooterProvider({
         state,
         setState,
         position,
-        setPosition,
-        goNext,
-        goBack,
         backUrl,
-        nextUrl
+        nextUrl,
+        type: theoryId ? 'theory' : exerciseId ? 'exercise' : undefined,
+        checkExerciseFunctionRef,
+        checkExercise
       }}
     >
       {children}

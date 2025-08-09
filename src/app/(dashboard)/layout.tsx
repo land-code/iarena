@@ -6,7 +6,6 @@ import DashboardHeader from '@/components/layout/dashboard-header'
 
 import { APP_NAME } from '@/consts/app'
 import { META, SITE_URL } from '@/consts/meta'
-import DashboardFooter from '@/components/layout/dashboard-footer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -55,7 +54,6 @@ export default function RootLayout({
       >
         <DashboardHeader />
         <main className='flex w-full flex-1 flex-col items-center'>{children}</main>
-        <DashboardFooter />
         <Toaster />
       </body>
     </html>
