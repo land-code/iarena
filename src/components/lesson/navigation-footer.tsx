@@ -20,7 +20,7 @@ export default function NavigationFooter() {
     <footer
       className={`bg-accent flex w-full flex-col gap-4 p-4 ${isExerciseError ? 'bg-red-200 dark:bg-red-800' : ''} ${isExerciseWell ? 'bg-green-300 dark:bg-green-800' : ''} `}
     >
-      {isExerciseError && <p className='md-hidden text-destructive'>{state.message}</p>}
+      {isExerciseError && <p className='text-destructive md:hidden'>{state.message}</p>}
       {isExerciseWell && <p className='md-hidden'>Muy bien. Sigue así</p>}
       <div className='flex w-full items-center justify-between gap-4'>
         <Button variant='secondary' asChild>
@@ -32,7 +32,7 @@ export default function NavigationFooter() {
         </Button>
         <div>
           {isExerciseError && (
-            <p className='text-secondary hidden md:inline-flex'>{state.message}</p>
+            <p className='text-destructive hidden md:inline-flex'>{state.message}</p>
           )}
         </div>
         {isExerciseNotCompleted && <Button onClick={() => checkExercise()}>Comprobar</Button>}

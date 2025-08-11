@@ -167,10 +167,10 @@ Si "type" es "exercise", añade:
 - "failed_feedback": mensaje para cuando la respuesta es incorrecta
 
 Si "exercise_type" es "SHORT_ANSWER", incluye también:
-  - "short_answer_example": ejemplo del esquema de respuesta que debe seguir el usuario. Se muestra como placeholder en el input.
+  - "short_answer_example": ejemplo del esquema de respuesta que debe seguir el usuario. Se muestra como placeholder en el input. Debe de darle una pista al usuario, pero no darle la respuesta correcta.
 
 Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
-- "multiple_choice_options": lista con varias opciones de respuesta, incluyendo la correcta
+- "multiple_choice_options": lista con varias opciones de respuesta, incluyendo la correcta.
 
 No añadas instrucciones genéricas como "Elija la opción correcta". Limítate a dar el enunciado del ejercicio, las opciones y el feedback para respuestas erróneas.
 
