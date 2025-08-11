@@ -4,13 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Image from 'next/image'
 import { Loader2, X } from 'lucide-react'
 import { signUp } from '@/lib/auth-client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import {UI} from '@/consts/ui'
+import { UI } from '@/consts/ui'
+
+import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { getUserIp } from '@/lib/get-user-ip'
 
 export default function SignUp() {
   const [firstName, setFirstName] = useState('')
@@ -22,6 +25,13 @@ export default function SignUp() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  const captchaRef = useRef<HCaptcha>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+
+  const onCaptchaLoad = () => {
+    captchaRef.current?.execute()
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -134,6 +144,12 @@ export default function SignUp() {
               </div>
             </div>
           </div>
+          <HCaptcha
+            onLoad={onCaptchaLoad}
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+            onVerify={setCaptchaToken}
+            ref={captchaRef}
+          />
           <Button
             type='submit'
             className='w-full'
@@ -146,6 +162,10 @@ export default function SignUp() {
                 image: image ? await convertImageToBase64(image) : '',
                 callbackURL: '/dashboard',
                 fetchOptions: {
+                  headers: {
+                    'x-captcha-response': captchaToken ?? '',
+                    'x-captcha-user-remote-ip': await getUserIp()
+                  },
                   onResponse: () => {
                     setLoading(false)
                   },
