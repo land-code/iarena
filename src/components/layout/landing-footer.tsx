@@ -5,7 +5,7 @@ import { APP_NAME } from '@/consts/app'
 
 export default function LandingFooter() {
   return (
-    <footer className='flex flex-col gap-4 px-4 pt-12 pb-4'>
+    <footer className='bg-background flex flex-col gap-4 px-4 pt-12 pb-4'>
       <div className='flex max-w-sm flex-col gap-2'>
         <IArenaIcon />
         <p className='sr-only'>{APP_NAME}</p>

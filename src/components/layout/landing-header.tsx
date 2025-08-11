@@ -29,7 +29,7 @@ const LINKS: Link[] = [
 
 export default function LandingHeader() {
   return (
-    <header className='flex h-20 w-full shrink-0 items-center px-4 md:px-6'>
+    <header className='bg-primary/5 sticky top-0 left-1/2 z-50 flex h-20 w-max max-w-2xl shrink-0 -translate-x-1/2 items-center rounded-full px-4 backdrop-blur-lg md:px-6'>
       <Sheet>
         <SheetTrigger asChild>
           <Button variant='outline' size='icon' className='mr-6 sm:hidden'>
