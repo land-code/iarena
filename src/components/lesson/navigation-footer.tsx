@@ -11,10 +11,10 @@ export default function NavigationFooter() {
   const nextButtonUrl = nextUrl ?? nextLessonUrl
   const backButtonUrl = backUrl ?? backLessonUrl
 
-  const isExerciseNotCompleted =
-    type === 'exercise' && (state.status === 'idle' || state.status === 'error')
   const isExerciseError = type === 'exercise' && state.status === 'error'
   const isExerciseWell = type === 'exercise' && state.status === 'check'
+  const isCheckingExercise = type === 'exercise' && state.status === 'checking'
+  const canContinue = isExerciseWell || type === 'theory'
 
   return (
     <footer
@@ -35,8 +35,12 @@ export default function NavigationFooter() {
             <p className='text-destructive hidden md:inline-flex'>{state.message}</p>
           )}
         </div>
-        {isExerciseNotCompleted && <Button onClick={() => checkExercise()}>Comprobar</Button>}
-        {!isExerciseNotCompleted && nextButtonUrl && (
+        {!canContinue && (
+          <Button onClick={() => checkExercise()} disabled={isCheckingExercise}>
+            {isCheckingExercise ? 'Comprobando...' : 'Comprobar'}
+          </Button>
+        )}
+        {canContinue && nextButtonUrl && (
           <Button asChild>
             <Link prefetch={true} href={nextButtonUrl}>
               {nextUrl ? 'Siguiente ->' : 'Siguiente lección ->'}

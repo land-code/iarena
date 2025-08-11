@@ -12,7 +12,11 @@ type ShortAnswerProps = {
 }
 
 export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerProps) {
-  const { checkExerciseFunctionRef, setState } = useNavFooter()
+  const {
+    checkExercise: checkExerciseFunction,
+    checkExerciseFunctionRef,
+    setState
+  } = useNavFooter()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -36,9 +40,12 @@ export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerPr
   }, [exerciseId, checkExerciseFunctionRef, setState])
 
   return (
-    <Input
-      ref={inputRef}
-      placeholder={answerExample ? `Ej.: ${answerExample}` : 'Tu respuesta...'}
-    />
+    <form action={() => checkExerciseFunction()} className='w-full'>
+      <Input
+        autoFocus
+        ref={inputRef}
+        placeholder={answerExample ? `Ej.: ${answerExample}` : 'Tu respuesta...'}
+      />
+    </form>
   )
 }

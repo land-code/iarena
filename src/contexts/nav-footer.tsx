@@ -8,11 +8,13 @@ import {
   SetStateAction,
   useContext,
   useRef,
-  useEffect
+  useEffect,
+  useTransition
 } from 'react'
 
 type State =
   | { status: 'idle' }
+  | { status: 'checking' }
   | { status: 'error'; message: string }
   | { status: 'check'; message?: string }
 
@@ -54,6 +56,8 @@ export function NavFooterProvider({
 }: NavFooterProviderProps) {
   const [state, setState] = useState<State>({ status: 'idle' })
 
+  const [isChecking, startChecking] = useTransition()
+
   const { itineraryId, lessonId, theoryId, exerciseId } = useParams<{
     itineraryId: string
     lessonId: string
@@ -84,9 +88,11 @@ export function NavFooterProvider({
   const checkExerciseFunctionRef = useRef<(() => void) | null>(null)
 
   const checkExercise = () => {
-    if (checkExerciseFunctionRef.current) {
-      checkExerciseFunctionRef.current()
-    }
+    startChecking(() => {
+      if (checkExerciseFunctionRef.current) {
+        checkExerciseFunctionRef.current()
+      }
+    })
   }
 
   useEffect(() => {
@@ -98,7 +104,7 @@ export function NavFooterProvider({
       value={{
         backLessonUrl,
         nextLessonUrl,
-        state,
+        state: isChecking ? { status: 'checking' } : state,
         setState,
         position,
         backUrl,

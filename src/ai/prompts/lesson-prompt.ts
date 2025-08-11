@@ -158,21 +158,21 @@ Cada página debe tener estos campos comunes:
 - "type": "theory" o "exercise"
 
 Si "type" es "theory", añade:
-- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato. Puedes usar Markdown. Puedes también poner diagramas con un bloque de codigo de tipo mermaid
+- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato. Puedes usar Markdown. Puedes también poner diagramas con un bloque de codigo de tipo mermaid, para lo que debes escapar caracteres especiales como "(" y ")".
 - "image_search": cadena breve y descriptiva (máximo 8-9 palabras) que sirva como consulta directa para encontrar en Google una imagen clara y relevante relacionada con el contenido. Debe describir lo que se desea ver en la imagen, evitando ambigüedades. La consulta debe estar en el idioma del usuario. Debe preferir conceptos visuales como 'diagrama de la Ley de Hooke con vector de fuerza'.
 
 Si "type" es "exercise", añade:
-- "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
-- "answer": la respuesta correcta como texto
-- "failed_feedback": mensaje para cuando la respuesta es incorrecta
+- "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER".
+- "answer": la respuesta correcta textual.
+- "failed_feedback": mensaje para cuando la respuesta es incorrecta, que explique brevemente el error.
 
-Si "exercise_type" es "SHORT_ANSWER", incluye también:
-  - "short_answer_example": ejemplo del esquema de respuesta que debe seguir el usuario. Se muestra como placeholder en el input. Debe de darle una pista al usuario, pero no darle la respuesta correcta.
+Si "exercise_type" es "SHORT_ANSWER", añade también:
+  - "short_answer_example": un ejemplo ilustrativo o pista sobre el formato o tipo de respuesta esperada, que sirva como guía para el usuario. No debe revelar la respuesta correcta ni ser ambiguo, sino un modelo para que el usuario entienda qué tipo de texto escribir (por ejemplo, 'Una unidad de fuerza' o '9,81 m/s²').
 
 Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
-- "multiple_choice_options": lista con varias opciones de respuesta, incluyendo la correcta.
+- "multiple_choice_options": una lista con varias opciones de respuesta, incluyendo la correcta.
 
-No añadas instrucciones genéricas como "Elija la opción correcta". Limítate a dar el enunciado del ejercicio, las opciones y el feedback para respuestas erróneas.
+No añadas instrucciones genéricas como "Elija la opción correcta". Limítate a dar el enunciado del ejercicio, las opciones si las hay y el feedback para respuestas erróneas.
 
 El contenido pertenece a una parte concreta de un itinerario mayor. Solo genera lo necesario para esta parte, sin redundancias.
 

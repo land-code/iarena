@@ -3,7 +3,6 @@
 import { useNavFooter } from '@/contexts/nav-footer'
 import { useEffect, useState } from 'react'
 import { checkExercise } from '@/actions/exercise/check'
-import { Card } from '../ui/card'
 import { toast } from 'sonner'
 
 type MultipleChoiceProps = {
@@ -13,7 +12,11 @@ type MultipleChoiceProps = {
 
 export default function MultipleChoice({ exerciseId, options }: MultipleChoiceProps) {
   const [selected, setSelected] = useState<string | null>(null)
-  const { checkExerciseFunctionRef, setState } = useNavFooter()
+  const {
+    checkExercise: checkExerciseFunction,
+    checkExerciseFunctionRef,
+    setState
+  } = useNavFooter()
 
   useEffect(() => {
     checkExerciseFunctionRef.current = async () => {
@@ -32,18 +35,36 @@ export default function MultipleChoice({ exerciseId, options }: MultipleChoicePr
   }, [exerciseId, setState, checkExerciseFunctionRef, selected])
 
   return (
-    <div className='grid w-full gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+    <form
+      action={() => checkExerciseFunction()}
+      className='grid w-full gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+    >
       {options.map(option => (
-        <Card
+        <label
           key={option}
-          onClick={() => setSelected(option)}
-          className={`cursor-pointer rounded-md border p-4 ${
+          className={`hover:bg-accent flex cursor-pointer rounded-md border p-4 ${
             selected === option ? 'border-accent-foreground bg-accent' : 'border-gray-300'
           }`}
+          tabIndex={0}
+          onKeyDown={e => {
+            if (e.code === 'Enter' || e.code === 'Space') {
+              setSelected(option)
+            }
+          }}
+          onClick={() => setSelected(option)}
         >
-          {option}
-        </Card>
+          <input
+            type='radio'
+            name='multiple-choice'
+            checked={selected === option}
+            onClick={() => setSelected(option)}
+            className='sr-only'
+            tabIndex={-1}
+            readOnly
+          />
+          <span>{option}</span>
+        </label>
       ))}
-    </div>
+    </form>
   )
 }
