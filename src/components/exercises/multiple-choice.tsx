@@ -15,24 +15,28 @@ export default function MultipleChoice({ exerciseId, options }: MultipleChoicePr
   const {
     checkExercise: checkExerciseFunction,
     checkExerciseFunctionRef,
-    setState
+    setState,
+    setPoints
   } = useNavFooter()
 
   useEffect(() => {
     checkExerciseFunctionRef.current = async () => {
       if (!selected) return toast('Debes escoger una opción')
-      const { status, error, result, feedback } = await checkExercise(exerciseId, selected)
-      if (status === 'error') {
-        toast(error)
+      const res = await checkExercise(exerciseId, selected)
+      if (res.status === 'error') {
+        toast(res.error)
+        return
       }
-      if (result === 'fail') {
-        setState({ status: 'error', message: feedback ?? '' })
+      if (res.result === 'fail') {
+        setState({ status: 'error', message: res.feedback ?? '' })
       }
-      if (result === 'check') {
+      if (res.result === 'check') {
         setState({ status: 'check' })
       }
+
+      setPoints(res.score)
     }
-  }, [exerciseId, setState, checkExerciseFunctionRef, selected])
+  }, [exerciseId, setState, checkExerciseFunctionRef, selected, setPoints])
 
   return (
     <form

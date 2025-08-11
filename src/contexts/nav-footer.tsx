@@ -23,9 +23,11 @@ type NavFooterContextType = {
   setState: Dispatch<SetStateAction<State>>
   position: number
   type?: 'theory' | 'exercise'
+  points: number | null
+  setPoints: Dispatch<SetStateAction<number | null>>
+
   nextUrl: string | null
   backUrl: string | null
-
   nextLessonUrl: string | null
   backLessonUrl: string | null
 
@@ -55,6 +57,7 @@ export function NavFooterProvider({
   children
 }: NavFooterProviderProps) {
   const [state, setState] = useState<State>({ status: 'idle' })
+  const [points, setPoints] = useState<number | null>(null)
 
   const [isChecking, startChecking] = useTransition()
 
@@ -111,7 +114,9 @@ export function NavFooterProvider({
         nextUrl,
         type: theoryId ? 'theory' : exerciseId ? 'exercise' : undefined,
         checkExerciseFunctionRef,
-        checkExercise
+        checkExercise,
+        points,
+        setPoints
       }}
     >
       {children}

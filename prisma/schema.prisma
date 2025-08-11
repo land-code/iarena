@@ -32,6 +32,8 @@ model User {
 
   lessons       Lesson[]
   itineraries   Itinerary[]
+  lessonProgresses UserLessonProgress[]
+  exerciseProgresses  UserExerciseProgress[]
 
   @@unique([email])
   @@map("user")
@@ -118,6 +120,7 @@ model Exercise {
   answerExample   String?
 
   lessonExercises LessonExercise[]
+  exerciseProgresses  UserExerciseProgress[]
 
   @@map("exercise")
 }
@@ -133,6 +136,7 @@ model Lesson {
   theories    LessonTheory[] // Relation to the linking table for theories
   exercises   LessonExercise[] // Relation to the linking table for exercises
   itineraryLessons ItineraryLesson[] // Relation to the linking table for itineraries
+  lessonProgresses UserLessonProgress[]
 
   @@map("lesson")
 }
@@ -161,6 +165,36 @@ model LessonExercise {
 
   @@unique([lessonId, exerciseId])
   @@map("lesson_exercise")
+}
+
+model UserLessonProgress {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  completed Boolean  @default(false)
+  completedAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("user_lesson_progress")
+}
+
+model UserExerciseProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  exerciseId  String
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  attempts    Int      @default(0)
+  score       Float?   // si quieres guardar nota o porcentaje
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@map("user_exercise_progress")
 }
 
 // Represents an itinerary composed of multiple lessons

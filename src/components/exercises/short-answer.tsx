@@ -15,29 +15,30 @@ export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerPr
   const {
     checkExercise: checkExerciseFunction,
     checkExerciseFunctionRef,
-    setState
+    setState,
+    setPoints
   } = useNavFooter()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (inputRef.current) {
       checkExerciseFunctionRef.current = async () => {
-        const { error, status, result, feedback } = await checkExercise(
-          exerciseId,
-          inputRef.current?.value ?? ''
-        )
-        if (status === 'error') {
-          toast(error)
+        const res = await checkExercise(exerciseId, inputRef.current?.value ?? '')
+        if (res.status === 'error') {
+          toast(res.error)
+          return
         }
-        if (result === 'fail') {
-          setState({ status: 'error', message: feedback ?? '' })
+        if (res.result === 'fail') {
+          setState({ status: 'error', message: res.feedback ?? '' })
         }
-        if (result === 'check') {
+        if (res.result === 'check') {
           setState({ status: 'check' })
         }
+
+        setPoints(res.score)
       }
     }
-  }, [exerciseId, checkExerciseFunctionRef, setState])
+  }, [exerciseId, checkExerciseFunctionRef, setState, setPoints])
 
   return (
     <form action={() => checkExerciseFunction()} className='w-full'>
