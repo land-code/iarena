@@ -5,18 +5,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { signIn } from '@/lib/auth-client'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { UI } from '@/consts/ui'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { getUserIp } from '@/lib/get-user-ip'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+
+  const captchaRef = useRef<HCaptcha>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+
+  const onCaptchaLoad = () => {
+    captchaRef.current?.execute()
+  }
+
+  const router = useRouter()
 
   return (
     <Card className='w-full max-w-md'>
@@ -70,25 +83,40 @@ export default function SignIn() {
             <Label htmlFor='remember'>Recuérdame</Label>
           </div>
 
+          <HCaptcha
+            onLoad={onCaptchaLoad}
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+            onVerify={setCaptchaToken}
+            ref={captchaRef}
+          />
+
           <Button
             type='submit'
             className='w-full'
             disabled={loading}
             onClick={async () => {
-              await signIn.email(
-                {
-                  email,
-                  password
-                },
-                {
+              await signIn.email({
+                email,
+                password,
+                fetchOptions: {
+                  headers: {
+                    'x-captcha-response': captchaToken ?? '',
+                    'x-captcha-user-remote-ip': await getUserIp()
+                  },
                   onRequest: () => {
                     setLoading(true)
                   },
                   onResponse: () => {
                     setLoading(false)
+                  },
+                  onError: ctx => {
+                    toast(ctx.error.message)
+                  },
+                  onSuccess: async () => {
+                    router.push('/dashboard')
                   }
                 }
-              )
+              })
             }}
           >
             {loading ? <Loader2 size={16} className='animate-spin' /> : <p>{UI.signIn}</p>}
