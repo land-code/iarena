@@ -8,7 +8,8 @@ import z from 'zod'
 
 const TheorySchema = z.object({
   title: z.string(),
-  content: z.string()
+  content: z.string(),
+  image_search: z.string().optional()
 })
 
 const OrderItemSchema = z.object({
@@ -34,14 +35,16 @@ const ExerciseSchema = z.preprocess(
     // eslint-disable-next-line
     const data = input as any
 
-    // Si es MULTIPLE_CHOICE pero le faltan opciones, lo convertimos en SHORT_ANSWER
+    // If its MULTIPLE_CHOICE type, but lacks options, we convert in SHORT_ANSWER
     if (
       data.exercise_type === 'MULTIPLE_CHOICE' &&
       (!Array.isArray(data.multiple_choice_options) || data.multiple_choice_options.length === 0)
     ) {
       return {
         ...data,
-        exercise_type: 'SHORT_ANSWER'
+        exercise_type: 'SHORT_ANSWER',
+        short_answer_example:
+          typeof data.short_answer_example === 'string' ? data.short_answer_example : undefined
       }
     }
 
@@ -49,7 +52,8 @@ const ExerciseSchema = z.preprocess(
   },
   z.discriminatedUnion('exercise_type', [
     ExerciseBaseSchema.extend({
-      exercise_type: z.literal('SHORT_ANSWER')
+      exercise_type: z.literal('SHORT_ANSWER'),
+      short_answer_example: z.string()
     }),
     ExerciseBaseSchema.extend({
       exercise_type: z.literal('MULTIPLE_CHOICE'),
@@ -88,6 +92,9 @@ export const lessonPrompt: Prompt = {
               },
               content: {
                 type: Type.STRING
+              },
+              image_search: {
+                type: Type.STRING
               }
             }
           }
@@ -109,6 +116,9 @@ export const lessonPrompt: Prompt = {
                 type: Type.STRING
               },
               failed_feedback: {
+                type: Type.STRING
+              },
+              short_answer_example: {
                 type: Type.STRING
               },
               multiple_choice_options: {
@@ -149,11 +159,15 @@ Cada página debe tener estos campos comunes:
 
 Si "type" es "theory", añade:
 - "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato. Puedes usar Markdown. Puedes también poner diagramas con un bloque de codigo de tipo mermaid
+- "image_search": cadena breve y descriptiva (máximo 8-9 palabras) que sirva como consulta directa para encontrar en Google una imagen clara y relevante relacionada con el contenido. Debe describir lo que se desea ver en la imagen, evitando ambigüedades. La consulta debe estar en el idioma del usuario. Debe preferir conceptos visuales como 'diagrama de la Ley de Hooke con vector de fuerza'.
 
 Si "type" es "exercise", añade:
 - "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
 - "answer": la respuesta correcta como texto
 - "failed_feedback": mensaje para cuando la respuesta es incorrecta
+
+Si "exercise_type" es "SHORT_ANSWER", incluye también:
+  - "short_answer_example": ejemplo del esquema de respuesta que debe seguir el usuario. Se muestra como placeholder en el input.
 
 Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
 - "multiple_choice_options": lista con varias opciones de respuesta, incluyendo la correcta
@@ -168,6 +182,7 @@ Devuelve un JSON con tres arrays:
    - "type": "theory"
    - "title": string
    - "content": string
+   - "image_search": string (optional)
 
 2. "b_exercises": lista de objetos con:
    - "type": "exercise"
@@ -175,6 +190,8 @@ Devuelve un JSON con tres arrays:
    - "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
    - "answer": string
    - "failed_feedback": string
+   - Si "exercise_type" es "SHORT_ANSWER", incluye también:
+     - "short_answer_example"
    - Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
      - "multiple_choice_options": array de strings
 

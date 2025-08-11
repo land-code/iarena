@@ -17,6 +17,9 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
   return (
     <>
       <MarkdownRenderer content={fullContent} />
+      {theory.imageUrls.map((imageUrl, index) => (
+        <img key={index} alt={theory.imageAlts?.[index]} src={imageUrl} />
+      ))}
     </>
   )
 }

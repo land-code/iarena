@@ -10,6 +10,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { FullContentSchema } from '@/ai/prompts/lesson-prompt'
+import { getImageFromGoogle } from '@/lib/custom-search'
 
 const GenerateLessonSchema = z.object({
   lessonId: z.uuid()
@@ -58,6 +59,7 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
   try {
     result = FullContentSchema.parse(JSON.parse(itinerary))
   } catch (error) {
+    console.log(itinerary)
     console.log(error)
     return {
       status: 'error',
@@ -86,9 +88,20 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
         .filter(exercise => exercise.position !== -1)
 
       const theoriesCreated = await Promise.all(
-        positionedTheories.map(({ title, content }) =>
-          tx.theory.create({ data: { title, content } })
-        )
+        positionedTheories.map(async ({ title, content, image_search }) => {
+          const imageSearchs = [image_search].filter(i => i !== undefined)
+          const imageUrls = (
+            await Promise.all(imageSearchs.map(i => getImageFromGoogle(i)))
+          ).filter(i => i !== null)
+          return tx.theory.create({
+            data: {
+              title,
+              content,
+              imageUrls,
+              imageAlts: imageSearchs
+            }
+          })
+        })
       )
 
       const exercisesCreated = await Promise.all(
@@ -99,6 +112,10 @@ export async function generateLesson(_: ActionState, formData: FormData): Promis
               type: exercise.exercise_type,
               answer: exercise.answer,
               failedFeedback: exercise.failed_feedback,
+              answerExample:
+                exercise.exercise_type === 'SHORT_ANSWER'
+                  ? exercise.short_answer_example
+                  : undefined,
               multiple_choice_options:
                 exercise.exercise_type === 'MULTIPLE_CHOICE' ? exercise.multiple_choice_options : []
             }

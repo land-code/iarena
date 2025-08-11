@@ -97,10 +97,13 @@ enum Difficulty {
 }
 
 model Theory {
-  id          String         @id @default(uuid())
+  id          String          @id @default(uuid())
   title       String
   content     String
-  lessonTheories LessonTheory[]
+  imageUrls   String[]        @default([])
+  imageAlts   String[]        @default([])
+
+  lessonTheories  LessonTheory[]
 
   @@map("theorie")
 }
@@ -112,6 +115,8 @@ model Exercise {
   answer          String            @default("")
   failedFeedback  String            @default("")
   multiple_choice_options String[]  @default([])
+  answerExample   String?
+
   lessonExercises LessonExercise[]
 
   @@map("exercise")
