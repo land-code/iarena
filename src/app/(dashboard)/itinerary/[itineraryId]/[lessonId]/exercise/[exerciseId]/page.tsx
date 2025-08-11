@@ -8,7 +8,7 @@ type TheoryPageProps = {
 }
 
 export default async function TheoryPage({ params }: TheoryPageProps) {
-  const { exerciseId } = await params
+  const { exerciseId, lessonId } = await params
 
   const exercise = await prisma.exercise.findFirst({ where: { id: exerciseId } })
   if (!exercise) notFound()
@@ -20,6 +20,7 @@ export default async function TheoryPage({ params }: TheoryPageProps) {
         <MarkdownRenderer content={exercise.title} inline />
       </h1>
       <ExerciseComponent
+        lessonId={lessonId}
         exerciseId={exercise.id}
         answerExample={exercise.answerExample}
         options={exercise.multiple_choice_options}

@@ -8,9 +8,10 @@ import { toast } from 'sonner'
 type MultipleChoiceProps = {
   exerciseId: string
   options: string[]
+  lessonId: string
 }
 
-export default function MultipleChoice({ exerciseId, options }: MultipleChoiceProps) {
+export default function MultipleChoice({ exerciseId, options, lessonId }: MultipleChoiceProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const {
     checkExercise: checkExerciseFunction,
@@ -22,7 +23,7 @@ export default function MultipleChoice({ exerciseId, options }: MultipleChoicePr
   useEffect(() => {
     checkExerciseFunctionRef.current = async () => {
       if (!selected) return toast('Debes escoger una opción')
-      const res = await checkExercise(exerciseId, selected)
+      const res = await checkExercise({ exerciseId, answer: selected, lessonId })
       if (res.status === 'error') {
         toast(res.error)
         return
@@ -36,7 +37,7 @@ export default function MultipleChoice({ exerciseId, options }: MultipleChoicePr
 
       setPoints(res.score)
     }
-  }, [exerciseId, setState, checkExerciseFunctionRef, selected, setPoints])
+  }, [exerciseId, setState, checkExerciseFunctionRef, selected, setPoints, lessonId])
 
   return (
     <form

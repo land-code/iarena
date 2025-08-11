@@ -9,9 +9,10 @@ import { toast } from 'sonner'
 type ShortAnswerProps = {
   exerciseId: string
   answerExample: string | null
+  lessonId: string
 }
 
-export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerProps) {
+export default function ShortAnswer({ exerciseId, answerExample, lessonId }: ShortAnswerProps) {
   const {
     checkExercise: checkExerciseFunction,
     checkExerciseFunctionRef,
@@ -23,7 +24,11 @@ export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerPr
   useEffect(() => {
     if (inputRef.current) {
       checkExerciseFunctionRef.current = async () => {
-        const res = await checkExercise(exerciseId, inputRef.current?.value ?? '')
+        const res = await checkExercise({
+          exerciseId,
+          answer: inputRef.current?.value ?? '',
+          lessonId
+        })
         if (res.status === 'error') {
           toast(res.error)
           return
@@ -38,7 +43,7 @@ export default function ShortAnswer({ exerciseId, answerExample }: ShortAnswerPr
         setPoints(res.score)
       }
     }
-  }, [exerciseId, checkExerciseFunctionRef, setState, setPoints])
+  }, [exerciseId, checkExerciseFunctionRef, setState, setPoints, lessonId])
 
   return (
     <form action={() => checkExerciseFunction()} className='w-full'>
