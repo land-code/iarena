@@ -57,8 +57,7 @@ async function handleExerciseProgress(
     })
   }
 
-  const newScore = (currentProgress.score ?? 0) + 10 * newAttempts
-
+  const newScore = (currentProgress.score ?? 0) + 10
   return await tx.userExerciseProgress.update({
     where: { id: currentProgress.id },
     data: {
@@ -98,6 +97,7 @@ type CheckExerciseResult =
       result: 'fail'
       feedback: string
       score: number
+      correctAnswer?: string
     }
   | {
       status: 'error'
@@ -114,30 +114,51 @@ export const checkExercise = async ({
   lessonId: string
 }): Promise<CheckExerciseResult> => {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) return { status: 'error', error: 'No hay sesión' }
+  if (!session) return { status: 'error', error: 'No has iniciado sesión' }
 
-  const exercise = await prisma.exercise.findFirst({ where: { id: exerciseId } })
+  const [exercise, exercisesList] = await Promise.all([
+    prisma.exercise.findUnique({
+      where: { id: exerciseId },
+      select: { answer: true, failedFeedback: true }
+    }),
+    prisma.lessonExercise.findMany({
+      select: { exerciseId: true },
+      where: { lessonId },
+      orderBy: { position: 'asc' }
+    })
+  ])
+
   if (!exercise) return { status: 'error', error: 'No se ha encontrado el ejercicio' }
+  if (exercisesList.length === 0) {
+    return { status: 'error', error: 'No se ha encontrado la lección' }
+  }
 
-  const lastExercise = await prisma.lessonExercise.findFirst({
-    select: { exerciseId: true },
-    where: { lessonId: lessonId },
-    orderBy: { position: 'desc' }
-  })
-  if (!lastExercise) return { status: 'error', error: 'No se ha encontrado la lección' }
+  const currentIndex = exercisesList.findIndex(e => e.exerciseId === exerciseId)
 
-  const { answer: correctAnswer, failedFeedback } = exercise
-
-  const isCorrect = answer === correctAnswer
-
-  const currentProgress = await prisma.userExerciseProgress.findFirst({
-    where: {
-      userId: session.user.id,
-      exerciseId
-    }
+  const currentProgressPromise = prisma.userExerciseProgress.findFirst({
+    where: { userId: session.user.id, exerciseId }
   })
 
-  const finalScore = await prisma.$transaction(async tx => {
+  let prevProgressPromise: Promise<{ completed: boolean } | null> | undefined
+  if (currentIndex > 0) {
+    const prevExerciseId = exercisesList[currentIndex - 1].exerciseId
+    prevProgressPromise = prisma.userExerciseProgress.findFirst({
+      where: { userId: session.user.id, exerciseId: prevExerciseId }
+    })
+  }
+
+  const [currentProgress, prevProgress] = await Promise.all([
+    currentProgressPromise,
+    prevProgressPromise
+  ])
+
+  if (currentIndex > 0 && !prevProgress?.completed) {
+    return { status: 'error', error: 'Debes de completar el anterior ejercicio antes' }
+  }
+
+  const isCorrect = answer === exercise.answer
+
+  const { finalScore, attempts, correctAnswer } = await prisma.$transaction(async tx => {
     const exerciseProgress = await handleExerciseProgress(tx, {
       session,
       exerciseId,
@@ -146,13 +167,27 @@ export const checkExercise = async ({
     })
 
     if (exerciseProgress.completed) {
-      await handleLessonProgress(tx, { session, lessonId, lastExercise: Boolean(lastExercise) })
+      await handleLessonProgress(tx, {
+        session,
+        lessonId,
+        lastExercise: currentIndex === exercisesList.length - 1
+      })
     }
 
-    return exerciseProgress.score ?? 0
+    return {
+      finalScore: exerciseProgress.score ?? 0,
+      attempts: exerciseProgress.attempts,
+      correctAnswer: exercise.answer
+    }
   })
 
   return isCorrect
     ? { status: 'ok', result: 'check', score: finalScore }
-    : { status: 'ok', result: 'fail', feedback: failedFeedback, score: finalScore }
+    : {
+        status: 'ok',
+        result: 'fail',
+        feedback: exercise.failedFeedback,
+        score: finalScore,
+        correctAnswer: attempts >= 2 ? correctAnswer : undefined
+      }
 }

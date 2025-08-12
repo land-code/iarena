@@ -152,52 +152,55 @@ export const lessonPrompt: Prompt = {
     systemInstruction: [
       {
         text: `
-Vas a generar una lección de 6-7 páginas, que pueden ser de tipo "theory" o "exercise".
+Vas a generar una lección de 6-7 páginas que pueden ser de tipo "theory" o "exercise".
 
 Cada página debe tener estos campos comunes:
-- "type": "theory" o "exercise"
+- "type": "theory" o "exercise".
 
 Si "type" es "theory", añade:
-- "content": explicación teórica clara y precisa, adaptada a nivel 2º de Bachillerato. Puedes usar Markdown. Puedes también poner diagramas con un bloque de codigo de tipo mermaid, para lo que debes escapar caracteres especiales como "(" y ")".
-- "image_search": cadena breve y descriptiva (máximo 8-9 palabras) que sirva como consulta directa para encontrar en Google una imagen clara y relevante relacionada con el contenido. Debe describir lo que se desea ver en la imagen, evitando ambigüedades. La consulta debe estar en el idioma del usuario. Debe preferir conceptos visuales como 'diagrama de la Ley de Hooke con vector de fuerza'.
+- "content": explicación teórica clara y precisa, nivel 2º de Bachillerato, usando Markdown.
+- Puedes incluir diagramas con bloques de código Mermaid, pero SOLO si el código es válido y soportado por Mermaid.  
+- Evita diagramas Mermaid que no existan (como diagramas de Venn). Si la temática requiere un diagrama complejo no soportado, usa descripciones en texto claras y concisas en lugar de diagramas inválidos.
+- Escapa correctamente los caracteres especiales en el código Mermaid.
+- Cierra siempre el bloque de código con tres acentos graves y la palabra "mermaid", y asegúrate que el bloque es sintácticamente correcto.
+
+- "image_search": una cadena breve para búsqueda de imagen en Google, con un máximo de 8-9 palabras. Debe describir de forma precisa el contenido visual deseado en español. Preferir imágenes de diagramas o esquemas claros.
 
 Si "type" es "exercise", añade:
-- "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER".
-- "answer": la respuesta correcta textual.
-- "failed_feedback": mensaje para cuando la respuesta es incorrecta, que explique brevemente el error.
+- "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER" (breve).
+- "answer": respuesta correcta textual.
+- "failed_feedback": retroalimentación breve y clara para respuestas erróneas.
 
 Si "exercise_type" es "SHORT_ANSWER", añade también:
-  - "short_answer_example": un ejemplo ilustrativo o pista sobre el formato o tipo de respuesta esperada, que sirva como guía para el usuario. No debe revelar la respuesta correcta ni ser ambiguo, sino un modelo para que el usuario entienda qué tipo de texto escribir (por ejemplo, 'Una unidad de fuerza' o '9,81 m/s²').
+- "short_answer_example": ejemplo que guíe sobre formato o tipo de respuesta esperada (sin dar la respuesta correcta).
 
-Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
-- "multiple_choice_options": una lista con varias opciones de respuesta, incluyendo la correcta.
+Si "exercise_type" es "MULTIPLE_CHOICE", añade también:
+- "multiple_choice_options": lista con varias opciones, incluyendo la correcta.
 
-No añadas instrucciones genéricas como "Elija la opción correcta". Limítate a dar el enunciado del ejercicio, las opciones si las hay y el feedback para respuestas erróneas.
+No incluyas instrucciones genéricas ni textos adicionales. Solo el contenido concreto de teoría o ejercicio.
 
-El contenido pertenece a una parte concreta de un itinerario mayor. Solo genera lo necesario para esta parte, sin redundancias.
+El contenido debe ser concreto, sin redundancias ni información extra.
 
 Devuelve un JSON con tres arrays:
 
-1. "a_theories": lista de objetos con:
+1. "a_theories": array de objetos con:
    - "type": "theory"
    - "title": string
    - "content": string
-   - "image_search": string (optional)
+   - "image_search": string (opcional)
 
-2. "b_exercises": lista de objetos con:
+2. "b_exercises": array de objetos con:
    - "type": "exercise"
    - "title": string
    - "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
    - "answer": string
    - "failed_feedback": string
-   - Si "exercise_type" es "SHORT_ANSWER", incluye también:
-     - "short_answer_example"
-   - Si "exercise_type" es "MULTIPLE_CHOICE", incluye también:
-     - "multiple_choice_options": array de strings
+   - Si "exercise_type" es "SHORT_ANSWER", añade "short_answer_example"
+   - Si "exercise_type" es "MULTIPLE_CHOICE", añade "multiple_choice_options"
 
-3. "z_order": lista que indica el orden de TODAS las páginas, con objetos que tienen:
+3. "z_order": array con el orden de TODAS las páginas, objetos con:
    - "source": "theory" o "exercises"
-   - "index": entero, posición dentro del array correspondiente
+   - "index": entero, posición en el array correspondiente
 
 Ejemplo de "z_order":
 [
@@ -210,7 +213,7 @@ Ejemplo de "z_order":
   { "source": "exercises", "index": 3 }
 ]
 
-No incluyas campos adicionales ni información extra.
+No añadas campos ni información extra.
 
 Aquí tienes un resumen generado por otra IA para esta lección:
         `

@@ -34,7 +34,10 @@ export default function ShortAnswer({ exerciseId, answerExample, lessonId }: Sho
           return
         }
         if (res.result === 'fail') {
-          setState({ status: 'error', message: res.feedback ?? '' })
+          setState({
+            status: 'error',
+            message: `${res.feedback} ${res.correctAnswer ? `\nRespuesta correcta: ${res.correctAnswer}` : ''}`
+          })
         }
         if (res.result === 'check') {
           setState({ status: 'check' })

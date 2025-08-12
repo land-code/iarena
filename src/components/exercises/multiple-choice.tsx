@@ -29,7 +29,10 @@ export default function MultipleChoice({ exerciseId, options, lessonId }: Multip
         return
       }
       if (res.result === 'fail') {
-        setState({ status: 'error', message: res.feedback ?? '' })
+        setState({
+          status: 'error',
+          message: `${res.feedback}`
+        })
       }
       if (res.result === 'check') {
         setState({ status: 'check' })

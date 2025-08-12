@@ -14,7 +14,7 @@ export default function NavigationFooter() {
   const isExerciseError = type === 'exercise' && state.status === 'error'
   const isExerciseWell = type === 'exercise' && state.status === 'check'
   const isCheckingExercise = type === 'exercise' && state.status === 'checking'
-  const canContinue = isExerciseWell || type === 'theory'
+  const canContinue = isExerciseWell || type !== 'exercise'
 
   return (
     <footer

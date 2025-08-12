@@ -66,6 +66,17 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
     }))
   ].toSorted((a, b) => a.position - b.position)
 
+  const exercises = content.filter(i => i.type === 'exercise')
+
+  const exerciseProgresses = await Promise.all(
+    exercises.map(e =>
+      prisma.userExerciseProgress.findFirst({
+        where: { exerciseId: e.data.id, userId: session.user.id },
+        select: { completed: true, exerciseId: true }
+      })
+    )
+  )
+
   return (
     <NavFooterProvider
       lessonContents={content.map(({ id, type, position }) => ({ id, type, position }))}
@@ -84,16 +95,30 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
                 <DropdownMenuTrigger>Ir a...</DropdownMenuTrigger>
               </Button>
               <DropdownMenuContent>
-                {content.map(content => (
-                  <DropdownMenuItem asChild key={content.data.id}>
-                    <Link
-                      href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
-                      prefetch={false}
+                {content.map(content => {
+                  const currentExerciseIndex = exercises.findIndex(
+                    e => e.data.id === content.data.id
+                  )
+                  const previousProgress = exerciseProgresses[currentExerciseIndex - 1]
+                  const isPreviousCompleted = previousProgress?.completed
+                  const isExercise = content.type === 'exercise'
+                  const isFirstExercise = currentExerciseIndex === 0
+
+                  return (
+                    <DropdownMenuItem
+                      asChild
+                      key={content.data.id}
+                      disabled={!isPreviousCompleted && isExercise && !isFirstExercise}
                     >
-                      {lessonPosition}.{content.position} {content.data.title}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
+                      <Link
+                        href={`/itinerary/${itineraryId}/${lessonId}/${content.type}/${content.data.id}`}
+                        prefetch={false}
+                      >
+                        {lessonPosition}.{content.position} {content.data.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
