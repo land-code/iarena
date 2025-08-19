@@ -3,6 +3,7 @@ import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { nextCookies } from 'better-auth/next-js'
 import { admin, captcha } from 'better-auth/plugins'
+import { localization } from 'better-auth-localization'
 
 const prisma = new PrismaClient()
 
@@ -38,6 +39,7 @@ export const auth = betterAuth({
       provider: 'hcaptcha',
       siteKey: process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!,
       secretKey: process.env.HCAPTCHA_SECRET_KEY!
-    })
+    }),
+    localization({ defaultLocale: 'es-ES' })
   ]
 })

@@ -47,6 +47,9 @@ importers:
       better-auth:
         specifier: ^1.3.4
         version: 1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      better-auth-localization:
+        specifier: ^2.1.0
+        version: 2.1.0(better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1454,6 +1457,11 @@ packages:
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
+
+  better-auth-localization@2.1.0:
+    resolution: {integrity: sha512-dYev3/k3i7VxZKR4pPJShxCIV+jJLfogi+amfa++0HldiRbztdI1UOans4e9COKP955DMT0nR5AxVhcMRErTLQ==}
+    peerDependencies:
+      better-auth: ^1.3.4
 
   better-auth@1.3.4:
     resolution: {integrity: sha512-JbZYam6Cs3Eu5CSoMK120zSshfaKvrCftSo/+v7524H1RvhryQ7UtMbzagBcXj0Digjj8hZtVkkR4tTZD/wK2g==}
@@ -4988,6 +4996,10 @@ snapshots:
   balanced-match@1.0.2: {}
 
   base64-js@1.5.1: {}
+
+  better-auth-localization@2.1.0(better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)):
+    dependencies:
+      better-auth: 1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
