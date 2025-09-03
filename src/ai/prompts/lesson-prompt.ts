@@ -29,38 +29,16 @@ const ExerciseBaseSchema = z.object({
   exercise_type: z.enum(['MULTIPLE_CHOICE', 'SHORT_ANSWER'])
 })
 
-// 🎯 Este es el esquema real que permite corregir dinámicamente
-const ExerciseSchema = z.preprocess(
-  input => {
-    // eslint-disable-next-line
-    const data = input as any
-
-    // If its MULTIPLE_CHOICE type, but lacks options, we convert in SHORT_ANSWER
-    if (
-      data.exercise_type === 'MULTIPLE_CHOICE' &&
-      (!Array.isArray(data.multiple_choice_options) || data.multiple_choice_options.length === 0)
-    ) {
-      return {
-        ...data,
-        exercise_type: 'SHORT_ANSWER',
-        short_answer_example:
-          typeof data.short_answer_example === 'string' ? data.short_answer_example : undefined
-      }
-    }
-
-    return data
-  },
-  z.discriminatedUnion('exercise_type', [
-    ExerciseBaseSchema.extend({
-      exercise_type: z.literal('SHORT_ANSWER'),
-      short_answer_example: z.string()
-    }),
-    ExerciseBaseSchema.extend({
-      exercise_type: z.literal('MULTIPLE_CHOICE'),
-      multiple_choice_options: z.array(z.string())
-    })
-  ])
-)
+const ExerciseSchema = z.discriminatedUnion('exercise_type', [
+  ExerciseBaseSchema.extend({
+    exercise_type: z.literal('SHORT_ANSWER'),
+    short_answer_example: z.string()
+  }),
+  ExerciseBaseSchema.extend({
+    exercise_type: z.literal('MULTIPLE_CHOICE'),
+    multiple_choice_options: z.array(z.string())
+  })
+])
 
 // ===================
 // ESQUEMA PRINCIPAL
@@ -68,7 +46,26 @@ const ExerciseSchema = z.preprocess(
 
 export const FullContentSchema = z.object({
   a_theories: z.array(TheorySchema),
-  b_exercises: z.array(ExerciseSchema),
+  b_exercises: z.preprocess(input => {
+    if (!Array.isArray(input)) return input
+    return input.filter(data => {
+      if (
+        data.exercise_type === 'MULTIPLE_CHOICE' &&
+        (!Array.isArray(data.multiple_choice_options) || data.multiple_choice_options.length === 0)
+      ) {
+        return false
+      }
+
+      if (
+        data.exercise_type === 'MULTIPLE_CHOICE' &&
+        data.multiple_choice_options.includes(data.answer)
+      ) {
+        return false
+      }
+
+      return true // se mantiene
+    })
+  }, z.array(ExerciseSchema)),
   z_order: z.array(OrderItemSchema)
 })
 
@@ -155,54 +152,76 @@ export const lessonPrompt: Prompt = {
 Vas a generar una lección de 6-7 páginas que pueden ser de tipo "theory" o "exercise".
 
 Cada página debe tener estos campos comunes:
-- "type": "theory" o "exercise".
+    "type": "theory" o "exercise".
 
 Si "type" es "theory", añade:
-- "content": explicación teórica clara y precisa, nivel 2º de Bachillerato, usando Markdown.
-- Puedes incluir diagramas con bloques de código Mermaid, pero SOLO si el código es válido y soportado por Mermaid.  
-- Evita diagramas Mermaid que no existan (como diagramas de Venn). Si la temática requiere un diagrama complejo no soportado, usa descripciones en texto claras y concisas en lugar de diagramas inválidos.
-- Escapa correctamente los caracteres especiales en el código Mermaid.
-- Cierra siempre el bloque de código con tres acentos graves y la palabra "mermaid", y asegúrate que el bloque es sintácticamente correcto.
+    - "content": explicación teórica clara y precisa, nivel 2º de Bachillerato, usando Markdown.
 
-- "image_search": una cadena breve para búsqueda de imagen en Google, con un máximo de 8-9 palabras. Debe describir de forma precisa el contenido visual deseado en español. Preferir imágenes de diagramas o esquemas claros.
+    Puedes incluir diagramas con bloques de código Mermaid, pero SOLO si el código es válido y soportado por Mermaid.
+
+        Ejemplo válido (flujo simple):
+
+\`\`\`mermaid
+flowchart LR
+  A[Inicio] --> B[Procesar datos]
+  B --> C[Mostrar resultado]
+\`\`\`
+
+Ejemplo válido (diagrama de clases):
+
+\`\`\`mermaid
+classDiagram
+  Class01 <|-- AveryLongClass : Cool
+  Class03 *-- Class04
+  Class05 o-- Class06
+\`\`\`
+
+    No uses diagramas Mermaid que no existan (por ejemplo, diagramas de Venn).
+
+    Si el contenido requiere un diagrama no soportado, describe el proceso en texto claro y conciso en lugar de Mermaid inválido.
+
+    Escapa correctamente caracteres especiales dentro del código Mermaid.
+
+    Cierra siempre el bloque de código con tres acentos graves y la palabra mermaid en la línea final.
+
+    "image_search": una cadena breve (máx. 8-9 palabras) para búsqueda en Google, describiendo de forma precisa el contenido visual deseado (preferir diagramas o esquemas).
 
 Si "type" es "exercise", añade:
-- "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER" (breve).
-- "answer": respuesta correcta textual.
-- "failed_feedback": retroalimentación breve y clara para respuestas erróneas.
+    "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER".
+    "answer": respuesta correcta textual (breve).
+    "failed_feedback": retroalimentación breve y clara para respuestas erróneas.
 
 Si "exercise_type" es "SHORT_ANSWER", añade también:
-- "short_answer_example": ejemplo que guíe sobre formato o tipo de respuesta esperada (sin dar la respuesta correcta).
+    "short_answer_example": ejemplo que guíe sobre el formato o tipo de respuesta esperada (sin dar la respuesta correcta).
+        Ejemplo: "Ejemplo: 'Fuerza = masa × aceleración'"
 
 Si "exercise_type" es "MULTIPLE_CHOICE", añade también:
-- "multiple_choice_options": lista con varias opciones, incluyendo la correcta.
+    "multiple_choice_options": lista con varias opciones (incluyendo la correcta).
+        Ejemplo: ["3x10⁸ m/s", "1.5x10⁸ m/s", "9.8 m/s²", "6.67x10⁻¹¹ N·m²/kg²"]
 
-No incluyas instrucciones genéricas ni textos adicionales. Solo el contenido concreto de teoría o ejercicio.
+Estructura de salida en JSON:
 
-El contenido debe ser concreto, sin redundancias ni información extra.
+    "a_theories": array de objetos con:
+        "type": "theory"
+        "title": string
+        "content": string
+        "image_search": string
 
-Devuelve un JSON con tres arrays:
+    "b_exercises": array de objetos con:
+        "type": "exercise"
+        "title": string
+        "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
+        "answer": string
+        "failed_feedback": string
+        Si "SHORT_ANSWER": "short_answer_example"
+        Si "MULTIPLE_CHOICE": "multiple_choice_options"
 
-1. "a_theories": array de objetos con:
-   - "type": "theory"
-   - "title": string
-   - "content": string
-   - "image_search": string (opcional)
-
-2. "b_exercises": array de objetos con:
-   - "type": "exercise"
-   - "title": string
-   - "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER"
-   - "answer": string
-   - "failed_feedback": string
-   - Si "exercise_type" es "SHORT_ANSWER", añade "short_answer_example"
-   - Si "exercise_type" es "MULTIPLE_CHOICE", añade "multiple_choice_options"
-
-3. "z_order": array con el orden de TODAS las páginas, objetos con:
-   - "source": "theory" o "exercises"
-   - "index": entero, posición en el array correspondiente
+    "z_order": array con el orden de todas las páginas:
+        "source": "theory" o "exercises"
+        "index": entero
 
 Ejemplo de "z_order":
+
 [
   { "source": "theory", "index": 0 },
   { "source": "exercises", "index": 0 },
@@ -213,9 +232,70 @@ Ejemplo de "z_order":
   { "source": "exercises", "index": 3 }
 ]
 
-No añadas campos ni información extra.
+Ejemplo final:
+  {
+  "a_theories": [
+    {
+      "type": "theory",
+      "title": "Introducción a las derivadas",
+      "content": "## Concepto de derivada\n\nLa **derivada** de una función en un punto representa la **tasa de cambio instantánea** de la función en ese punto. Matemáticamente, se define como el límite:\n\n$$ f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h} $$\n\n### Interpretación geométrica\n\n- La derivada es la **pendiente de la recta tangente** a la curva en un punto.\n- Si $f'(x) > 0$, la función es creciente en $x$.\n- Si $f'(x) < 0$, la función es decreciente en $x$.\n\n\`\`\`mermaid\nflowchart LR\n  A[Función f(x)] --> B[Derivada f'(x)]\n  B --> C[Pendiente tangente]\n  B --> D[Tasa de cambio]\n\`\`\`",
+      "image_search": "recta tangente gráfica derivada pendiente"
+    },
+    {
+      "type": "theory",
+      "title": "Reglas básicas de derivación",
+      "content": "## Reglas fundamentales\n\n1. **Derivada de una constante**:\n   $$ \\frac{d}{dx}(c) = 0 $$\n\n2. **Derivada de x**:\n   $$ \\frac{d}{dx}(x) = 1 $$\n\n3. **Regla de la potencia**:\n   $$ \\frac{d}{dx}(x^n) = n \\cdot x^{n-1} $$\n\n4. **Regla del producto**:\n   $$ (f \\cdot g)' = f' \\cdot g + f \\cdot g' $$\n\n5. **Regla del cociente**:\n   $$ \\left(\\frac{f}{g}\\right)' = \\frac{f' \\cdot g - f \\cdot g'}{g^2} $$\n\n6. **Regla de la cadena**:\n   $$ (f(g(x)))' = f'(g(x)) \\cdot g'(x) $$",
+      "image_search": "reglas derivación matemáticas gráfico"
+    },
+    {
+      "type": "theory",
+      "title": "Derivadas de funciones trascendentes",
+      "content": "## Funciones exponenciales y logarítmicas\n\n- **Exponencial natural**:\n  $$ \\frac{d}{dx}(e^x) = e^x $$\n\n- **Logaritmo natural**:\n  $$ \\frac{d}{dx}(\\ln x) = \\frac{1}{x} $$\n\n## Funciones trigonométricas\n\n- **Seno**:\n  $$ \\frac{d}{dx}(\\sin x) = \\cos x $$\n\n- **Coseno**:\n  $$ \\frac{d}{dx}(\\cos x) = -\\sin x $$\n\n- **Tangente**:\n  $$ \\frac{d}{dx}(\\tan x) = \\sec^2 x $$\n\n\`\`\`mermaid\nclassDiagram\n  Funciones <|-- Exponenciales\n  Funciones <|-- Logarítmicas\n  Funciones <|-- Trigonométricas\n  Exponenciales : +e^x\n  Logarítmicas : +ln x\n  Trigonométricas : +sen x, cos x, tan x\n\`\`\`",
+      "image_search": "derivadas funciones trigonométricas exponenciales"
+    }
+  ],
+  "b_exercises": [
+    {
+      "type": "exercise",
+      "title": "Cálculo de derivada básica",
+      "exercise_type": "MULTIPLE_CHOICE",
+      "answer": "3x^2 + 6x",
+      "failed_feedback": "Recuerda aplicar la regla de la potencia para cada término",
+      "multiple_choice_options": ["3x^2 + 6x", "2x^2 + 6x", "3x^2 + 3x"]
+    },
+    {
+      "type": "exercise",
+      "title": "Selección de regla de derivación",
+      "exercise_type": "MULTIPLE_CHOICE",
+      "answer": "Regla del producto",
+      "failed_feedback": "Analiza si la función es un producto, cociente o composición",
+      "multiple_choice_options": [
+        "Regla de la potencia",
+        "Regla del producto",
+        "Regla del cociente",
+        "Regla de la cadena"
+      ]
+    },
+    {
+      "type": "exercise",
+      "title": "Deriva la función: f(x) = ln(x + 1)",
+      "exercise_type": "SHORT_ANSWER",
+      "answer": "1/(x+1)",
+      "failed_feedback": "Recuerda: d/dx[ln(u)] = u'/u. Aquí u = x + 1",
+      "short_answer_example": "2/(2x+3)"
+    }
+  ],
+  "z_order": [
+    { "source": "theory", "index": 0 },
+    { "source": "exercises", "index": 0 },
+    { "source": "theory", "index": 1 },
+    { "source": "exercises", "index": 1 },
+    { "source": "theory", "index": 2 },
+    { "source": "exercises", "index": 2 }
+  ]
+}
 
-Aquí tienes un resumen generado por otra IA para esta lección:
+A continuación tienes la entrada real de esta lección. Limítate a lo que se te pide, ya que el resto probablemente ya fue tratado en otra lección:
         `
       }
     ]

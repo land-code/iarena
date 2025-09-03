@@ -31,7 +31,7 @@ export default function MultipleChoice({ exerciseId, options, lessonId }: Multip
       if (res.result === 'fail') {
         setState({
           status: 'error',
-          message: `${res.feedback}`
+          message: `${res.feedback} ${res.correctAnswer ? `\nRespuesta correcta: ${res.correctAnswer}` : ''}`
         })
       }
       if (res.result === 'check') {

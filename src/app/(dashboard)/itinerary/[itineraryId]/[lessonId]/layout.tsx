@@ -51,6 +51,17 @@ export default async function LessonPage({ params, children }: LessonPageProps) 
   const nextLessonId = itinerary?.lessons.find(l => l.position === lessonPosition + 1)?.lessonId
   const previousLessonId = itinerary?.lessons.find(l => l.position === lessonPosition - 1)?.lessonId
 
+  const previousLessonProgress = previousLessonId
+    ? await prisma.userLessonProgress.findFirst({
+        where: { userId: session.user.id, lessonId: previousLessonId },
+        select: { completed: true }
+      })
+    : null
+
+  if (previousLessonId && !previousLessonProgress?.completed) {
+    return 'No has completado la lección anterior.'
+  }
+
   const content = [
     ...lesson.theories.map(t => ({
       id: t.theory.id,
