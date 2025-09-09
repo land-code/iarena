@@ -10,11 +10,17 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import pdf2md from '@opendocsg/pdf2md'
+
+const pdfFileSchema = z.instanceof(File).refine(file => file.type === 'application/pdf', {
+  message: 'The file must be a PDF'
+})
 
 const ItinerarySchema = z.object({
   text: z
     .string({ error: 'Es obligatorio describir el itinerario' })
-    .min(10, 'La descripción debe de tener al menos 10 caracteres')
+    .min(10, 'La descripción debe de tener al menos 10 caracteres'),
+  file: pdfFileSchema
 })
 
 z.config(es())
@@ -24,8 +30,11 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
   if (!session) redirect('/login')
   const userId = session.user.id
 
+  console.log(formData.get('file'))
+
   const parsed = ItinerarySchema.safeParse({
-    text: formData.get('text')
+    text: formData.get('text'),
+    file: formData.get('file')
   })
   if (!parsed.success) {
     return {
@@ -34,9 +43,37 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
     }
   }
 
-  const { text } = parsed.data
+  const { text, file } = parsed.data
 
-  const itinerary = await generateItinerary(text)
+  let inputText = text
+
+  if (file) {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+
+      const content = await pdf2md(arrayBuffer)
+
+      const summary = await import('node-summary').then(m => m.default || m)
+      const sum = await new Promise<string>((resolve, reject) => {
+        summary.summarize('Documento', content, (err, res) => {
+          if (err) reject(err)
+          else resolve(res)
+        })
+      })
+
+      inputText += sum
+
+      console.log()
+    } catch (err) {
+      console.error('Error extracting PDF text: ', err)
+      return {
+        status: 'error',
+        error: 'Error al extraer texto del PDF'
+      }
+    }
+  }
+
+  const itinerary = await generateItinerary(inputText)
   if (!itinerary) {
     return {
       status: 'error',
@@ -104,8 +141,8 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
       error: 'Se ha producido un error al guardar el itinerario'
     }
   }
-  
-  revalidatePath("/dashboard")
+
+  revalidatePath('/dashboard')
 
   return { status: 'success' }
 }

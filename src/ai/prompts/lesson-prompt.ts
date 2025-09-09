@@ -167,13 +167,26 @@ flowchart LR
   B --> C[Mostrar resultado]
 \`\`\`
 
-Ejemplo válido (diagrama de clases):
+Ejemplo válido (diagrama mental):
 
 \`\`\`mermaid
-classDiagram
-  Class01 <|-- AveryLongClass : Cool
-  Class03 *-- Class04
-  Class05 o-- Class06
+mindmap
+  root((mapa mental))
+    Orígenes
+      Historia larga
+      ::icon(fa fa-book)
+      Popularidad
+        Autor psicológico popular británico **Tony Buzan
+    Investigación
+      En efectividad<br/>y características
+      En creación automática
+        Usos
+            **Técnicas** creativas
+            **Planificación** estratégica
+            **Mapeado** de argumentos
+    Herramientas
+      Bolígrafo y papel
+      Mermaid
 \`\`\`
 
     No uses diagramas Mermaid que no existan (por ejemplo, diagramas de Venn).
@@ -182,18 +195,18 @@ classDiagram
 
     Escapa correctamente caracteres especiales dentro del código Mermaid.
 
-    Cierra siempre el bloque de código con tres acentos graves y la palabra mermaid en la línea final.
+    Cierra siempre el bloque de código con tres acentos graves.
 
     "image_search": una cadena breve (máx. 8-9 palabras) para búsqueda en Google, describiendo de forma precisa el contenido visual deseado (preferir diagramas o esquemas).
 
 Si "type" es "exercise", añade:
-    "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER".
+    "exercise_type": "MULTIPLE_CHOICE" o "SHORT_ANSWER". SHORT_ANSWER solo se puede usar cuando hay una única respuesta correcta, y esta debe ser breve.
     "answer": respuesta correcta textual (breve).
     "failed_feedback": retroalimentación breve y clara para respuestas erróneas.
 
 Si "exercise_type" es "SHORT_ANSWER", añade también:
     "short_answer_example": ejemplo que guíe sobre el formato o tipo de respuesta esperada (sin dar la respuesta correcta).
-        Ejemplo: "Ejemplo: 'Fuerza = masa × aceleración'"
+        Ejemplo: "Introduce el resultado en número sin símbolos de unidades, siendo estas m/s²", "Introduce tu respuesta"
 
 Si "exercise_type" es "MULTIPLE_CHOICE", añade también:
     "multiple_choice_options": lista con varias opciones (incluyendo la correcta).
