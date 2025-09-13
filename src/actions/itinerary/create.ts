@@ -14,7 +14,7 @@ import pdf2md from '@opendocsg/pdf2md'
 
 const pdfFileSchema = z.instanceof(File).refine(file => file.type === 'application/pdf', {
   message: 'The file must be a PDF'
-})
+}).optional()
 
 const ItinerarySchema = z.object({
   text: z
