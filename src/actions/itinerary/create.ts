@@ -9,12 +9,22 @@ import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import pdf2md from '@opendocsg/pdf2md'
 
-const pdfFileSchema = z.instanceof(File).refine(file => file.type === 'application/pdf', {
-  message: 'The file must be a PDF'
-}).optional()
+const pdfFileSchema = z
+  .instanceof(File)
+  .transform(file => (file.size === 0 ? undefined : file))
+  .optional()
+  .superRefine((file, ctx) => {
+    // if undefined -> don't do anything
+    if (file === undefined) return undefined
+    if (file.type !== 'application/pdf') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'El fichero debe ser un PDF'
+      })
+    }
+  })
 
 const ItinerarySchema = z.object({
   text: z
@@ -99,8 +109,10 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
 
   const { title, description, subject, course, difficulty, content } = result
 
+  let itineraryInfo = null
+
   try {
-    await prisma.$transaction(async tx => {
+    itineraryInfo = await prisma.$transaction(async tx => {
       const itineraryCreated = await tx.itinerary.create({
         data: {
           title,
@@ -133,6 +145,8 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
           position: index
         }))
       })
+
+      return itineraryCreated
     })
   } catch (error) {
     console.log(error)
@@ -142,7 +156,5 @@ export async function createItinerary(_: ActionState, formData: FormData): Promi
     }
   }
 
-  revalidatePath('/dashboard')
-
-  return { status: 'success' }
+  redirect(`/itinerary/${itineraryInfo.id}`)
 }
